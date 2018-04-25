@@ -39,6 +39,8 @@ export default {
     this.$children[1].editor.session.on('change', function (delta) {
       console.log(delta)
     })
+    this.ace = this.$children[1].editor
+    window.gapi.load('auth:client,drive-realtime,drive-share', this.init)
   },
 
   methods: {
@@ -55,6 +57,14 @@ export default {
     },
     onPaste (param) {
       console.log('onPaste', arguments)
+    },
+    init () {
+      const doc = window.gapi.drive.realtime.newInMemoryDocument()
+      const model = doc.getModel()
+      const collaborativeString = model.createString()
+      collaborativeString.setText('Welcome to the Quickstart App!')
+      model.getRoot().set('demo_string', collaborativeString)
+      this.ace.session.setValue(collaborativeString.text)
     }
   }
 }
