@@ -1,8 +1,9 @@
-var express = require('express');
-var router = express.Router();
-var db = require('sharedb-mongo')('mongodb://localhost:27017/test');
-var ShareDB = require('sharedb');
-var backend = new ShareDB({db});
+const express = require('express');
+const config = require('../config');
+const ShareDB = require('sharedb');
+const db = require('sharedb-mongo')(config.database);
+const router = express.Router();
+const backend = new ShareDB({db});
 
 function createDoc(callback) {
     var connection = backend.connect();
