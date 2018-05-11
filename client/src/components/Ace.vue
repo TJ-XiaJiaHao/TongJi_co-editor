@@ -28,7 +28,7 @@ export default {
   data () {
     return {
       ace: null,
-      docs: [],
+      doc: null,
       themeSelections: ['monokai', 'test'],
       editorConfig: {
         content: 'function(){ console.log("test") }',
@@ -39,19 +39,16 @@ export default {
   },
 
   mounted () {
-    this.$children[1].editor.session.on('change', function (delta) {
-      console.log(delta);
-    });
     this.ace = this.$children[1].editor;
-
-    console.log(sharedb);// Open WebSocket connection to ShareDB server
+    this.ace.session.on('change', (delta) => {
+      const nValue = this.ace.getValue();
+      this.doc.submitOp([{p: ['document', 'value'], od: '', oi: nValue}]);
+    });
     const socket = new WebSocket('ws://localhost:3000/');
     const connection = new sharedb.Connection(socket);
-
-    const doc = connection.get('P_0001', 'P_0001');
-    console.log(socket);
-    doc.subscribe(this.update);
-    this.docs.push(doc);
+    this.doc = connection.get('P_0001', 'P_0001');
+    this.doc.subscribe(this.update);    // 订阅
+    this.doc.on('op', this.update);     // 文件被修改（他人或自己，都会更新
   },
 
   methods: {
@@ -70,7 +67,7 @@ export default {
       console.log('onPaste', arguments);
     },
     update () {
-      console.log(this.docs);
+      this.editorConfig.content = this.doc.data.document.value;
     }
   }
 };
