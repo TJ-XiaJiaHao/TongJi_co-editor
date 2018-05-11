@@ -17,6 +17,7 @@ import 'brace/mode/javascript'
 import 'brace/mode/css'
 import 'brace/theme/chrome'
 import 'brace/theme/monokai'
+import sharedb from 'sharedb/lib/client'
 
 export default {
   components: {
@@ -41,6 +42,8 @@ export default {
     })
     this.ace = this.$children[1].editor
     window.gapi.load('auth:client,drive-realtime,drive-share', this.init)
+
+    console.log(sharedb)
   },
 
   methods: {

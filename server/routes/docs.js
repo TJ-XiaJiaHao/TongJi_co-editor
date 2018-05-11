@@ -1,9 +1,9 @@
 // 访问路径：/docs/*，在app.js中定义
-const express = require('express');                                                       // express框架
-const url = require('url'); // 路由模块
-const ERROR = require('../model/ERROR');
-const Doc = require('../dao/doc');
-const router = express.Router();
+const express = require('express');         // express框架
+const url = require('url');                 // url模块
+const ERROR = require('../model/ERROR');    // 错误码
+const Doc = require('../dao/doc');          // 数据访问对象
+const router = express.Router();            // 路由
 
 router.get('/', (req, res) => {
   res.send('request path: /docs/');
@@ -33,6 +33,7 @@ router.get('/getAllDocs', (req, res) => {
   else Doc.getDocsByCollectionName(projectID, (data) => { res.json(data); });
 });
 
+// 删除文档
 router.post('/deleteDoc', (req, res) => {
   const projectID = req.body.projectID;
   const docID = req.body.docID;

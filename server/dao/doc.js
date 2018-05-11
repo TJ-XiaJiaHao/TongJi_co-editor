@@ -3,6 +3,8 @@ const db = require('sharedb-mongo')('mongodb://115.159.215.48:27017/COEDITOR');
 const ShareDB = require('sharedb');
 const backend = new ShareDB({db});
 const connection = backend.connect();
+const WebSocket = require('ws');
+const WebSocketJSONStream = require('websocket-json-stream');
 
 function Doc(doc) {
   return {
@@ -10,7 +12,17 @@ function Doc(doc) {
     collection: doc.collection,
     value: doc.data.document.value
   };
-};
+}
+
+function initWS(server) {
+// Connect any incoming WebSocket connection to ShareDB
+  const wss = new WebSocket.Server({server: server});
+  wss.on('connection', function(ws, req) {
+    console.log('new websocket connection: ', ws, req);
+    const stream = new WebSocketJSONStream(ws);
+    backend.listen(stream);
+  });
+}
 
 function create(collectionName, documentId, callback) {
   const doc = connection.get(collectionName, documentId);
@@ -84,4 +96,5 @@ module.exports = {
   getDocsByCollectionName,
   deleteDoc,
   deleteCollection,
+  initWS,
 };
