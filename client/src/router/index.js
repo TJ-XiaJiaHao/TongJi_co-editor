@@ -1,9 +1,9 @@
-import Vue from 'vue'
-import Router from 'vue-router'
-import HelloWorld from '@/components/HelloWorld'
-import Ace from '@/components/Ace'
+import Vue from 'vue';
+import Router from 'vue-router';
+import HelloWorld from '@/components/HelloWorld';
+import Ace from '@/components/Ace';
 
-Vue.use(Router)
+Vue.use(Router);
 
 export default new Router({
   mode: 'history',
@@ -24,4 +24,4 @@ export default new Router({
       component: HelloWorld
     }
   ]
-})
+});

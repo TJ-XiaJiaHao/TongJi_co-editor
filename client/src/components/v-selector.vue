@@ -24,8 +24,8 @@ export default {
 
   methods: {
     onChange (evt) {
-      this.$emit('change', evt.target.value)
+      this.$emit('change', evt.target.value);
     }
   }
-}
+};
 </script>

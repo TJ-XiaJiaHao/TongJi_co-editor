@@ -11,13 +11,14 @@
   </div>
 </template>
 <script>
-import vSelector from '@/components/v-selector'
-import editor from 'ace-vue2'
-import 'brace/mode/javascript'
-import 'brace/mode/css'
-import 'brace/theme/chrome'
-import 'brace/theme/monokai'
-import sharedb from 'sharedb/lib/client'
+import vSelector from '@/components/v-selector';
+import editor from 'ace-vue2';
+import 'brace/mode/javascript';
+import 'brace/mode/css';
+import 'brace/theme/chrome';
+import 'brace/theme/monokai';
+import sharedb from 'sharedb/lib/client';
+import Websocket from 'ws';
 
 export default {
   components: {
@@ -27,50 +28,52 @@ export default {
   data () {
     return {
       ace: null,
+      docs: [],
       themeSelections: ['monokai', 'test'],
       editorConfig: {
         content: 'function(){ console.log("test") }',
         lang: 'javascript',
         theme: 'monokai'
       }
-    }
+    };
   },
 
   mounted () {
     this.$children[1].editor.session.on('change', function (delta) {
-      console.log(delta)
-    })
-    this.ace = this.$children[1].editor
-    window.gapi.load('auth:client,drive-realtime,drive-share', this.init)
+      console.log(delta);
+    });
+    this.ace = this.$children[1].editor;
 
-    console.log(sharedb)
+    console.log(sharedb);// Open WebSocket connection to ShareDB server
+    const socket = new WebSocket('ws://localhost:3000/');
+    const connection = new sharedb.Connection(socket);
+
+    const doc = connection.get('P_0001', 'P_0001');
+    console.log(socket);
+    doc.subscribe(this.update);
+    this.docs.push(doc);
   },
 
   methods: {
     onThemeChange (nVal) {
     },
     onChange (param) {
-      console.log('onChange', arguments)
+      console.log('onChange', arguments);
     },
     onCopy (param) {
-      console.log('onCopy', arguments)
-      const currentValue = this.$children[1].getValue()
-      const editor = this.$children[1].editor
-      editor.setValue(currentValue + 'the ／new text here')
+      console.log('onCopy', arguments);
+      const currentValue = this.$children[1].getValue();
+      const editor = this.$children[1].editor;
+      editor.setValue(currentValue + 'the ／new text here');
     },
     onPaste (param) {
-      console.log('onPaste', arguments)
+      console.log('onPaste', arguments);
     },
-    init () {
-      const doc = window.gapi.drive.realtime.newInMemoryDocument()
-      const model = doc.getModel()
-      const collaborativeString = model.createString()
-      collaborativeString.setText('Welcome to the Quickstart App!')
-      model.getRoot().set('demo_string', collaborativeString)
-      this.ace.session.setValue(collaborativeString.text)
+    update () {
+      console.log(this.docs);
     }
   }
-}
+};
 </script>
 
 <style>

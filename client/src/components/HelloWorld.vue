@@ -89,13 +89,13 @@ export default {
   data () {
     return {
       msg: 'Welcome to Your Vue.js App'
-    }
+    };
   },
   mounted () {
-    const db = require('sharedb-mongo')('mongodb://localhost:27017/test')
-    console.log('mongo', db)
+    const db = require('sharedb-mongo')('mongodb://localhost:27017/test');
+    console.log('mongo', db);
   }
-}
+};
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
