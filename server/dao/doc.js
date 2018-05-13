@@ -8,7 +8,7 @@ const WebSocketJSONStream = require('websocket-json-stream');
 // ShareDB 可以支持多种 OT 类型，例如 JSON 文本，普通文本，富文本等
 // 具体文档可以查看 https://github.com/ottypes/docs
 // 这里使用普通文本类型 ot-text
-ShareDB.types.register(otText.type);
+ShareDB.types.register(otText.type);  
 
 const backend = new ShareDB({db});    // sharedb实例
 const connection = backend.connect();

@@ -44,7 +44,6 @@ export default {
   mounted () {
     sharedb.types.register(otText.type);          // 注册text类型
     this.ace = this.$children[1].editor;          // 编辑器
-    window.editor = this.ace;
     this.ace.session.on('change', (delta) => {    // 监听编辑器改动事件
       // 编辑器初始化
       if (!this.isEditorLoaded) {
@@ -54,7 +53,6 @@ export default {
       } else if (delta.action === 'remove') {
         this.remove(delta.start.row, delta.start.column, delta.lines);
       }
-      console.log('change', delta);
     });
     const socket = new WebSocket('ws://localhost:3000/');
     const connection = new sharedb.Connection(socket);
@@ -66,52 +64,63 @@ export default {
   methods: {
     onThemeChange (nVal) {
     },
-    onChange (param) {
-      console.log('onChange', arguments);
-    },
-    onCopy (param) {
-      console.log('onCopy', arguments);
-      const currentValue = this.$children[1].getValue();
-      const editor = this.$children[1].editor;
-      editor.setValue(currentValue + 'the ／new text here');
-    },
-    onPaste (param) {
-      console.log('onPaste', arguments);
-    },
+
+    /*
+     *  根据行和列获取字符串所在位置
+     */
     getPosition (row, column) {
-      const lines = this.ace.getValue().split('\n');
+      const lines = this.ace.getValue().split('\n');                    // 获取文档中所有行的内容
       let position = column;
       for (let i = 0; i < row; i++) position += lines[i].length + 1;
       return position;
     },
+
+    /*
+     *  把行数组转换成一个字符串
+     */
     getStringFromLines (lines) {
-      if(lines.length <= 0) return '';
       let str = lines[0];
       for (let i = 1; i < lines.length; i++) {
         str += '\n' + lines[i];
       }
       return str;
     },
+
+    /*
+     *  新增操作
+     */
     add (row, column, lines) {
       const position = this.getPosition(row, column);
       const string = this.getStringFromLines(lines);
-      this.doc.submitOp([position, string]);
+      this.doc.submitOp([position, string]);    // 在position的位置插入string字符串
     },
+
+    /*
+     *  删除操作
+     */
     remove (row, column, lines) {
       const position = this.getPosition(row, column);
       const string = this.getStringFromLines(lines);
-      this.doc.submitOp([position, {d: string.length}]);
+      this.doc.submitOp([position, {d: string.length}]);    // 在position位置删除长度为string.length的字符串
     },
+
+    /*
+     *  第一次获取文档内容后初始化
+     */
     init () {
       const nValue = this.doc.data;
+      this.isEditorLoaded = false;
       this.editorConfig.content = nValue;
     },
+
+    /*
+     *  把位置转化成行和列的对象
+     */
     getPoint (position) {
       const lines = this.ace.getValue().split('\n');
-      let count = 0;
       const point = { row: 0, column: 0};
+      let count = 0;
       for (let i = 0; i < lines.length; i++) {
-        console.log(count, position);
         if (count + lines[i].length + 1 > position) {
           point.row = i;
           point.column = position - count;
@@ -119,25 +128,26 @@ export default {
         }
         count += lines[i].length + 1;     // 1是回车的占位符
       }
-      console.log(position, point);
       return point;
     },
+
+    /*
+     *  他人或自己对文档进行修改后进行更新
+     */
     update (op, source) {
-      console.log(source, op);
-      if (!source) {
+      if (!source) {          // source === true代表此次操作是该客户端操作的，无需重复修改
         this.isEditorLoaded = false;
         // 长度为1代表从0开始，长度不为1代表从其他位置开始
         // add: {0: 12, 1: 'adb'} 或者 {0: 'adb'}
         // remove: {0: 12, 1: {d: 2}} 或者 {0: {d:2}}
-        if (op[op.length - 1].d) {
-          // 删除操作
+        if (op[op.length - 1].d) {      //  删除操作
           const pStart = op.length === 1 ? 0 : op[0];
           const pEnd = op.length === 1 ? op[0].d : op[0] + op[1].d;
           const range = {
             start: this.getPoint(pStart),
             end: this.getPoint(pEnd)
           };
-          this.ace.session.replace(range, '');
+          this.ace.session.replace(range, '');      // 替换指定区域的内容
         } else {
           // 新增操作
           const pStart = op.length === 1 ? 0 : op[0];
