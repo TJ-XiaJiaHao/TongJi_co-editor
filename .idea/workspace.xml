@@ -15,31 +15,46 @@
   <component name="ExecutionTargetManager" SELECTED_TARGET="default_target" />
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file leaf-file-name="doc.js" pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/server/dao/doc.js">
+      <file leaf-file-name="Ace.vue" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/client/src/components/Ace.vue">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="19">
-              <caret line="10" column="38" lean-forward="false" selection-start-line="10" selection-start-column="38" selection-end-line="10" selection-end-column="38" />
-              <folding />
+            <state relative-caret-position="253">
+              <caret line="81" column="29" lean-forward="false" selection-start-line="81" selection-start-column="29" selection-end-line="81" selection-end-column="29" />
+              <folding>
+                <element signature="n#editor#0;n#div#1;n#div#0;n#template#0;n#!!top" expanded="false" />
+                <element signature="e#554#602#0" expanded="true" />
+                <element signature="e#2144#2151#0" expanded="false" />
+                <element signature="e#2653#2868#0" expanded="false" />
+                <element signature="e#2938#3076#0" expanded="false" />
+                <element signature="e#3388#3599#0" expanded="false" />
+                <element signature="e#3651#3771#0" expanded="false" />
+                <element signature="e#3834#4235#0" expanded="false" />
+                <element signature="e#4303#5197#0" expanded="false" />
+              </folding>
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="Ace.vue" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/client/src/components/Ace.vue">
+      <file leaf-file-name="v-filesystem.vue" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/client/src/components/v-filesystem.vue">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="408">
-              <caret line="59" column="43" lean-forward="true" selection-start-line="59" selection-start-column="43" selection-end-line="59" selection-end-column="43" />
+            <state relative-caret-position="456">
+              <caret line="31" column="40" lean-forward="false" selection-start-line="31" selection-start-column="40" selection-end-line="31" selection-end-column="40" />
               <folding>
-                <element signature="e#366#414#0" expanded="true" />
-                <element signature="e#1843#1850#0" expanded="false" />
-                <element signature="e#1921#2136#0" expanded="false" />
-                <element signature="e#2206#2344#0" expanded="false" />
-                <element signature="e#2404#2593#0" expanded="false" />
-                <element signature="e#2656#2867#0" expanded="false" />
-                <element signature="e#2919#3039#0" expanded="false" />
-                <element signature="e#3102#3503#0" expanded="false" />
-                <element signature="e#3571#4453#0" expanded="false" />
+                <element signature="e#490#508#0" expanded="false" />
+                <element signature="e#519#586#0" expanded="false" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="v-filetree.vue" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/client/src/components/v-filetree.vue">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="385">
+              <caret line="41" column="10" lean-forward="false" selection-start-line="41" selection-start-column="10" selection-end-line="41" selection-end-column="10" />
+              <folding>
+                <element signature="e#454#505#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -86,6 +101,8 @@
       <find>ran</find>
       <find>range</find>
       <find>getString</find>
+      <find>session</find>
+      <find>closeDefaultRightClick</find>
     </findStrings>
     <dirStrings>
       <dir>D:\Project\co-editor\client\src</dir>
@@ -116,8 +133,13 @@
         <option value="$PROJECT_DIR$/client/index.html" />
         <option value="$PROJECT_DIR$/server/bin/www" />
         <option value="$PROJECT_DIR$/client/.eslintrc.js" />
-        <option value="$PROJECT_DIR$/client/src/components/Ace.vue" />
         <option value="$PROJECT_DIR$/server/dao/doc.js" />
+        <option value="$PROJECT_DIR$/client/src/components/v-filesystem" />
+        <option value="$PROJECT_DIR$/client/src/components/v-folder.vue" />
+        <option value="$PROJECT_DIR$/client/src/components/v-folderchild.vue" />
+        <option value="$PROJECT_DIR$/client/src/components/v-filesystem.vue" />
+        <option value="$PROJECT_DIR$/client/src/components/Ace.vue" />
+        <option value="$PROJECT_DIR$/client/src/components/v-filetree.vue" />
       </list>
     </option>
   </component>
@@ -164,6 +186,10 @@
               <option name="myItemId" value="co-editor" />
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="server" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
           </PATH>
           <PATH>
             <PATH_ELEMENT>
@@ -176,6 +202,68 @@
             </PATH_ELEMENT>
             <PATH_ELEMENT>
               <option name="myItemId" value="client" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="co-editor" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="co-editor" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="client" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="src" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="co-editor" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="co-editor" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="client" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="src" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="components" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="co-editor" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="co-editor" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="client" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="src" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="assets" />
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
           </PATH>
@@ -198,6 +286,11 @@
     <property name="node.js.selected.package.standard" value="" />
     <property name="last_opened_file_path" value="$PROJECT_DIR$/../sharedb/examples" />
   </component>
+  <component name="RecentsManager">
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="D:\Project\co-editor\client\src\assets" />
+    </key>
+  </component>
   <component name="RunDashboard">
     <option name="ruleStates">
       <list>
@@ -210,7 +303,7 @@
       </list>
     </option>
   </component>
-  <component name="RunManager" selected="npm.client">
+  <component name="RunManager" selected="Node.js.server">
     <configuration default="false" name="server" type="NodeJSConfigurationType" factoryName="Node.js" temporary="true" path-to-node="project" path-to-js-file="www" working-dir="$PROJECT_DIR$/server/bin">
       <EXTENSION ID="com.jetbrains.nodejs.remote.docker.NodeJSDockerRunConfigurationExtension">
         <option name="envVars">
@@ -334,23 +427,23 @@
       <workItem from="1525589134146" duration="362000" />
       <workItem from="1525589682133" duration="13840000" />
       <workItem from="1525682147720" duration="219000" />
-      <workItem from="1526015817912" duration="23092000" />
+      <workItem from="1526015817912" duration="36125000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="37513000" />
+    <option name="totallyTimeSpent" value="50546000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="-8" y="-8" width="1382" height="784" extended-state="6" />
     <editor active="true" />
     <layout>
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.16764276" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.16910689" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="true" content_ui="tabs" />
-      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32243684" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
+      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.17830609" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.004457652" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.13102409" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
@@ -492,22 +585,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/client/src/components/v-selector.vue">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="494">
-          <caret line="26" column="45" lean-forward="false" selection-start-line="26" selection-start-column="45" selection-end-line="26" selection-end-column="45" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/client/src/components/HelloWorld.vue">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="246">
-          <caret line="94" column="74" lean-forward="false" selection-start-line="94" selection-start-column="74" selection-end-line="94" selection-end-column="74" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/client/package.json">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="-38">
@@ -618,29 +695,82 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/server/dao/doc.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="418">
+          <caret line="52" column="52" lean-forward="false" selection-start-line="52" selection-start-column="9" selection-end-line="52" selection-end-column="52" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/client/src/components/v-selector.vue">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="395">
+          <caret line="26" column="45" lean-forward="false" selection-start-line="26" selection-start-column="45" selection-end-line="26" selection-end-column="45" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/client/src/components/v-folder.vue">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="76">
+          <caret line="4" column="19" lean-forward="false" selection-start-line="4" selection-start-column="7" selection-end-line="4" selection-end-column="19" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/client/src/components/v-folderchild.vue">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="57">
+          <caret line="3" column="12" lean-forward="false" selection-start-line="3" selection-start-column="5" selection-end-line="3" selection-end-column="12" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/client/src/components/HelloWorld.vue">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="133">
+          <caret line="7" column="21" lean-forward="false" selection-start-line="7" selection-start-column="21" selection-end-line="7" selection-end-column="21" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/client/src/components/Ace.vue">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="408">
-          <caret line="59" column="43" lean-forward="true" selection-start-line="59" selection-start-column="43" selection-end-line="59" selection-end-column="43" />
+        <state relative-caret-position="253">
+          <caret line="81" column="29" lean-forward="false" selection-start-line="81" selection-start-column="29" selection-end-line="81" selection-end-column="29" />
           <folding>
-            <element signature="e#366#414#0" expanded="true" />
-            <element signature="e#1843#1850#0" expanded="false" />
-            <element signature="e#1921#2136#0" expanded="false" />
-            <element signature="e#2206#2344#0" expanded="false" />
-            <element signature="e#2404#2593#0" expanded="false" />
-            <element signature="e#2656#2867#0" expanded="false" />
-            <element signature="e#2919#3039#0" expanded="false" />
-            <element signature="e#3102#3503#0" expanded="false" />
-            <element signature="e#3571#4453#0" expanded="false" />
+            <element signature="n#editor#0;n#div#1;n#div#0;n#template#0;n#!!top" expanded="false" />
+            <element signature="e#554#602#0" expanded="true" />
+            <element signature="e#2144#2151#0" expanded="false" />
+            <element signature="e#2653#2868#0" expanded="false" />
+            <element signature="e#2938#3076#0" expanded="false" />
+            <element signature="e#3388#3599#0" expanded="false" />
+            <element signature="e#3651#3771#0" expanded="false" />
+            <element signature="e#3834#4235#0" expanded="false" />
+            <element signature="e#4303#5197#0" expanded="false" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/server/dao/doc.js">
+    <entry file="file://$PROJECT_DIR$/client/src/components/v-filesystem.vue">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="19">
-          <caret line="10" column="38" lean-forward="false" selection-start-line="10" selection-start-column="38" selection-end-line="10" selection-end-column="38" />
-          <folding />
+        <state relative-caret-position="456">
+          <caret line="31" column="40" lean-forward="false" selection-start-line="31" selection-start-column="40" selection-end-line="31" selection-end-column="40" />
+          <folding>
+            <element signature="e#490#508#0" expanded="false" />
+            <element signature="e#519#586#0" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/client/src/components/v-filetree.vue">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="385">
+          <caret line="41" column="10" lean-forward="false" selection-start-line="41" selection-start-column="10" selection-end-line="41" selection-end-column="10" />
+          <folding>
+            <element signature="e#454#505#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>

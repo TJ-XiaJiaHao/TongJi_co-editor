@@ -1,17 +1,23 @@
 <template>
   <div class="ace-container">
-    <vSelector title="设定主题" :selections="themeSelections" @change="onThemeChange"></vSelector>
-    <editor class="editor"
-      :content="editorConfig.content"
-      :lang="editorConfig.lang"
-      :theme="editorConfig.theme"
-      :sync="true"
-      height="100%"
-      width="100%"> </editor>
+    <div class="left-content">
+      <vFileSystem :files = "files"></vFileSystem>
+    </div>
+    <div class="right-content">
+      <vSelector title="设定主题" :selections="themeSelections" @change="onThemeChange"></vSelector>
+      <editor class="editor"
+              :content="editorConfig.content"
+              :lang="editorConfig.lang"
+              :theme="editorConfig.theme"
+              :sync="true"
+              height="100%"
+              width="100%"> </editor>
+    </div>
   </div>
 </template>
 <script>
 import vSelector from '@/components/v-selector';
+import vFileSystem from '@/components/v-filesystem.vue';
 import editor from 'ace-vue2';
 import 'brace/mode/javascript';
 import 'brace/mode/css';
@@ -24,6 +30,7 @@ import otText from 'ot-text';
 export default {
   components: {
     vSelector,
+    vFileSystem,
     editor
   },
   data () {
@@ -37,11 +44,13 @@ export default {
         content: '',
         lang: 'javascript',
         theme: 'monokai'
-      }
+      },
+      files: []
     };
   },
 
   mounted () {
+    this.loadFiles();
     sharedb.types.register(otText.type);          // 注册text类型
     this.ace = this.$children[1].editor;          // 编辑器
     this.ace.session.on('change', (delta) => {    // 监听编辑器改动事件
@@ -64,7 +73,25 @@ export default {
   methods: {
     onThemeChange (nVal) {
     },
-
+    loadFiles () {
+      this.files = [{
+        name: 'folder1',
+        showChildren: true,
+        children: [{
+          name: 'folder2',
+          showChildren: false,
+          children: [
+            { name: 'file1' },
+            { name: 'file2' }
+          ]
+        }, {
+          name: 'folder3',
+          showChildren: true,
+          children: [{ name: 'file3' }]
+        }]
+      }, { name: 'file5' }
+      ];
+    },
     /*
      *  根据行和列获取字符串所在位置
      */
@@ -135,7 +162,7 @@ export default {
      *  他人或自己对文档进行修改后进行更新
      */
     update (op, source) {
-      if (!source) {          // source === true代表此次操作是该客户端操作的，无需重复修改
+      if (!source && this.ace) {          // source === true代表此次操作是该客户端操作的，无需重复修改
         this.isEditorLoaded = false;
         // 长度为1代表从0开始，长度不为1代表从其他位置开始
         // add: {0: 12, 1: 'adb'} 或者 {0: 'adb'}
@@ -166,6 +193,19 @@ export default {
 <style>
 .ace-container, .editor {
   width: 100%;
+  height: 100%;
+}
+.ace-container {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+}
+.left-content {
+  width: 250px;
+  height: 100%;
+}
+.right-content {
+  flex: 1;
   height: 100%;
 }
 </style>
