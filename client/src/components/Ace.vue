@@ -1,7 +1,7 @@
 <template>
   <div class="ace-container">
     <div class="left-content">
-      <vFileSystem :files = "files"></vFileSystem>
+      <vFileSystem :files = "files" @loadFile="loadFile"></vFileSystem>
     </div>
     <div class="right-content">
       <vSelector title="设定主题" :selections="themeSelections" @change="onThemeChange"></vSelector>
@@ -37,6 +37,9 @@ export default {
     return {
       ace: null,
       doc: null,
+      docs: [],
+      projectId: 'P_0001',
+      connection: null,
       isUpdating: false,
       themeSelections: ['monokai', 'test'],
       isEditorLoaded: false,
@@ -52,11 +55,11 @@ export default {
   mounted () {
     this.loadFiles();
     sharedb.types.register(otText.type);          // 注册text类型
-    this.ace = this.$children[1].editor;          // 编辑器
+    this.ace = this.$children[this.$children.length - 1].editor;          // 编辑器
     this.ace.session.on('change', (delta) => {    // 监听编辑器改动事件
       // 编辑器初始化
       if (!this.isEditorLoaded) {
-        this.isEditorLoaded = true;
+        // this.isEditorLoaded = true;
       } else if (delta.action === 'insert') {
         this.add(delta.start.row, delta.start.column, delta.lines);
       } else if (delta.action === 'remove') {
@@ -64,14 +67,18 @@ export default {
       }
     });
     const socket = new WebSocket('ws://localhost:3000/');
-    const connection = new sharedb.Connection(socket);
-    this.doc = connection.get('P_0001', 'P_0002');
-    this.doc.subscribe(this.init);    // 订阅
-    this.doc.on('op', this.update);     // 文件被修改（他人或自己，都会更新
+    this.connection = new sharedb.Connection(socket);
   },
 
   methods: {
     onThemeChange (nVal) {
+    },
+    loadFile (id) {
+      if (this.doc && this.doc.id === id) return;                 // 去除无效操作
+      if (this.doc) this.doc._events.op = null;                   // 清空监听事件
+      this.doc = this.connection.get(this.projectId, id);
+      this.doc.subscribe(this.init);    // 订阅
+      this.doc.on('op', this.update);     // 文件被修改（他人或自己，都会更新
     },
     loadFiles () {
       this.files = [{
@@ -89,7 +96,9 @@ export default {
           showChildren: true,
           children: [{ name: 'file3' }]
         }]
-      }, { name: 'file5' }
+      }, { name: 'P_0001', id: 'P_0001' },
+      { name: 'P_0002', id: 'P_0002' },
+      { name: 'P_0004', id: 'P_0004' }
       ];
     },
     /*
@@ -136,10 +145,16 @@ export default {
      */
     init () {
       const nValue = this.doc.data;
-      this.isEditorLoaded = false;
       this.editorConfig.content = nValue;
+      this.lockEditor();
     },
 
+    lockEditor () {
+      this.isEditorLoaded = false;
+      setTimeout(() => {
+        this.isEditorLoaded = true;
+      }, 20);
+    },
     /*
      *  把位置转化成行和列的对象
      */
@@ -163,7 +178,7 @@ export default {
      */
     update (op, source) {
       if (!source && this.ace) {          // source === true代表此次操作是该客户端操作的，无需重复修改
-        this.isEditorLoaded = false;
+        this.lockEditor();
         // 长度为1代表从0开始，长度不为1代表从其他位置开始
         // add: {0: 12, 1: 'adb'} 或者 {0: 'adb'}
         // remove: {0: 12, 1: {d: 2}} 或者 {0: {d:2}}

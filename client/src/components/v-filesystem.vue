@@ -1,6 +1,6 @@
 <template>
   <div @click="leftClick" @contextmenu.prevent="rightClick" class="file-system" @scroll="scroll">
-    <fileTree :files="files"></fileTree>
+    <fileTree :files="files" @loadFile="loadFile"></fileTree>
 
     <div class="menu" v-if="menu.show" :style="{left: menu.left + 'px', top: menu.top + 'px', width: menu.width + 'px'}">
       <div v-for="item in menu.items" :style="{height: menu.itemHeight + 'px'}">{{item}}</div>
@@ -36,16 +36,17 @@ export default {
     };
   },
   methods: {
+    loadFile (id) {
+      this.$emit('loadFile', id);
+    },
     scroll (e) {
       this.scrollTop = e.target.scrollTop;
       this.scrollLeft = e.target.scrollLeft;
     },
     leftClick (e) {
-      console.log('left click: ', e);
       this.menu.show = false;
     },
     rightClick (e) {
-      console.log('right click: ', e);
       const container = e.path.filter((item) => { return item.className === 'file-system'; })[0];
       const containerHeight = container.offsetHeight;
       const containerWidth = container.offsetWidth;
