@@ -1,10 +1,10 @@
 <template>
   <div class="file-tree-content">
     <div v-for="file in files" :key="file.name" class="file-tree-block">
-      <div class="file-tree-title" @click="fileClick(file)">
+      <div class="file-tree-title" @click="fileClick(file)"  :class="{'folder': file.children, 'file': !file.children }" :id="file.name">
         <img :src="file.showChildren ? downArrow : rightArrow" v-if="file.children" class="arrow"/>
         <span class="arrow" v-else></span>
-        <span class="file-name">{{file.name}}</span>
+        <span class="file-name ">{{file.name}}</span>
       </div>
       <div class="file-tree-child" v-if="file.showChildren">
         <fileTree v-if="file.children" :files="file.children"></fileTree>

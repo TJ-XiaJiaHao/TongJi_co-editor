@@ -1,10 +1,10 @@
 <template>
   <div class="ace-container">
     <div class="left-content">
-      <vFileSystem :files = "files" @loadFile="loadFile"></vFileSystem>
+      <vFileSystem :files = "files" @loadFile="loadFile" @createFolder="createFolder" @createFile="createFile"></vFileSystem>
+      <vSelector title="设定主题" :selections="themeSelections" @change="onThemeChange"></vSelector>
     </div>
     <div class="right-content">
-      <vSelector title="设定主题" :selections="themeSelections" @change="onThemeChange"></vSelector>
       <editor class="editor"
               :content="editorConfig.content"
               :lang="editorConfig.lang"
@@ -72,6 +72,29 @@ export default {
 
   methods: {
     onThemeChange (nVal) {
+    },
+    createFolder (father) {
+      const name = prompt('请输入文件名');
+      this.addToFiles({
+        name: name,
+        showChildren: true,
+        children: []
+      }, this.files, father);
+    },
+    createFile (father) {
+      const name = prompt('请输入文件名');
+      this.addToFiles({
+        name: name,
+        id: name
+      }, this.files, father);
+    },
+    addToFiles (obj, files, folderName) {
+      for (let i = 0; i < files.length; i++) {
+        if (files[i].name === folderName) {
+          files[i].children.push(obj);
+          files[i].children.sort((item) => !item.children);
+        } else if (files[i].children) this.addToFiles(obj, files[i].children, folderName);
+      }
     },
     loadFile (id) {
       if (this.doc && this.doc.id === id) return;                 // 去除无效操作
@@ -218,6 +241,8 @@ export default {
 .left-content {
   width: 250px;
   height: 100%;
+  display: flex;
+  flex-direction: column;
 }
 .right-content {
   flex: 1;
