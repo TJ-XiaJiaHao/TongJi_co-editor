@@ -9,4 +9,10 @@ module.exports = {
   UPDATE_FILE_FAIL: {code: 2002, msg: '文件更新失败'},
   GET_FILE_FAIL: {code: 2003, msg:'获取文件失败'},
   DELETE_FILE_FAIL: {code: 2004,msg:'删除文件失败'},
-}
+  PERMISSION_DENIED: {code: 2005,msg:'权限不足'},
+  INSERT_FAIL: {code: 2100, msg: '数据插入失败'},
+  FIND_FAIL: {code: 2101, msg: '数据查询失败'},
+  REMOVE_FAIL: {code: 2102, msg: '数据删除失败'},
+  UPDATE_FAIL: {code: 2103, msg: '数据更新失败'},
+  PROJECT_NOT_EXIST: {code: 2200, msg: '项目不存在'}
+};

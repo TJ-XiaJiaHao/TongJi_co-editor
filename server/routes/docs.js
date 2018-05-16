@@ -39,5 +39,6 @@ router.post('/deleteDoc', (req, res) => {
   const docID = req.body.docID;
   if(!projectID || !docID) res.json(ERROR.ARGUMENTS_ERROR);
   else Doc.deleteDoc(projectID, docID, (data) => { res.json(data); });
-})
+});
+
 module.exports = router;

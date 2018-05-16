@@ -13,6 +13,7 @@
     "express": "~4.16.0",
     "http-errors": "~1.6.2",
     "morgan": "~1.9.0",
+    "node-uuid": "^1.4.8",
     "ot-text": "^1.0.1",
     "sharedb-mongo": "^1.0.0-beta.4",
     "websocket-json-stream": "0.0.3",
