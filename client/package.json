@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "ace-vue2": "^0.3.0",
+    "axios": "^0.18.0",
     "bufferutil": "^3.0.5",
     "dns": "^0.2.2",
     "eslint": "^4.19.1",

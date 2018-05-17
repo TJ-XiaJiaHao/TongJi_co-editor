@@ -1,7 +1,11 @@
 <template>
   <div class="ace-container">
     <div class="left-content">
-      <vFileSystem :files = "files" @loadFile="loadFile" @createFolder="createFolder" @createFile="createFile"></vFileSystem>
+      <vFileSystem :files = "project.files" @loadFile="loadFile"
+                   @createFolder="createFolder"
+                   @createFile="createFile"
+                   @deleteFolder="deleteFolder"
+                   @deleteFile="deleteFile"></vFileSystem>
       <vSelector title="设定主题" :selections="themeSelections" @change="onThemeChange"></vSelector>
     </div>
     <div class="right-content">
@@ -26,6 +30,7 @@ import 'brace/theme/monokai';
 import sharedb from 'sharedb/lib/client';
 import Websocket from 'ws';
 import otText from 'ot-text';
+import axios from 'axios';
 
 export default {
   components: {
@@ -35,25 +40,25 @@ export default {
   },
   data () {
     return {
-      ace: null,
-      doc: null,
+      ace: null,                                          // ace编辑器实例
+      doc: null,                                          // 当前正在编辑的文档
       docs: [],
-      projectId: 'P_0001',
-      connection: null,
-      isUpdating: false,
+      project: {},                                       // 当前项目详细信息
+      connection: null,                                  // sharedb连接
       themeSelections: ['monokai', 'test'],
       isEditorLoaded: false,
-      editorConfig: {
+      editorConfig: {                                   // 编辑器配置
         content: '',
         lang: 'javascript',
         theme: 'monokai'
       },
-      files: []
+      host: 'http://localhost:3000'                      // 后端主机
     };
   },
 
   mounted () {
-    this.loadFiles();
+    const projectId = '4f5d9bd0-58e5-11e8-8854-2511af6a5590';
+    this.loadProject(projectId);
     sharedb.types.register(otText.type);          // 注册text类型
     this.ace = this.$children[this.$children.length - 1].editor;          // 编辑器
     this.ace.session.on('change', (delta) => {    // 监听编辑器改动事件
@@ -73,56 +78,81 @@ export default {
   methods: {
     onThemeChange (nVal) {
     },
+
+    /*
+     *  删除文件夹
+     */
+    deleteFolder (id) {
+      axios.post(`${this.host}/projects/deleteFolder`, {
+        projectId: this.project.projectId,
+        folderId: id
+      }).then((data) => {
+        this.project.files = data.data.files;
+      });
+    },
+
+    /*
+     *  删除文件
+     */
+    deleteFile (id) {
+      axios.post(`${this.host}/projects/deleteFile`, {
+        projectId: this.project.projectId,
+        fileId: id
+      }).then((data) => {
+        this.project.files = data.data.files;
+      });
+    },
+
+    /*
+     *  新建文件夹
+     */
     createFolder (father) {
       const name = prompt('请输入文件名');
-      this.addToFiles({
-        name: name,
-        showChildren: true,
-        children: []
-      }, this.files, father);
-    },
-    createFile (father) {
-      const name = prompt('请输入文件名');
-      this.addToFiles({
-        name: name,
-        id: name
-      }, this.files, father);
-    },
-    addToFiles (obj, files, folderName) {
-      for (let i = 0; i < files.length; i++) {
-        if (files[i].name === folderName) {
-          files[i].children.push(obj);
-          files[i].children.sort((item) => !item.children);
-        } else if (files[i].children) this.addToFiles(obj, files[i].children, folderName);
+      if (name) {
+        axios.post(`${this.host}/projects/createFolder`, {
+          projectId: this.project.projectId,
+          folderName: name,
+          fatherId: father
+        }).then((data) => {
+          this.project.files = data.data.files;
+        });
       }
     },
+
+    /*
+     *  新建文件
+     */
+    createFile (father) {
+      const name = prompt('请输入文件名');
+      if (name) {
+        axios.post(`${this.host}/projects/createFile`, {
+          projectId: this.project.projectId,
+          fileName: name,
+          fatherId: father
+        }).then((data) => {
+          this.project.files = data.data.files;
+        });
+      }
+    },
+
+    /*
+     *  加载文档内容
+     */
     loadFile (id) {
       if (this.doc && this.doc.id === id) return;                 // 去除无效操作
       if (this.doc) this.doc._events.op = null;                   // 清空监听事件
-      this.doc = this.connection.get(this.projectId, id);
+      this.doc = this.connection.get(this.project.projectId, id);
       this.doc.subscribe(this.init);    // 订阅
       this.doc.on('op', this.update);     // 文件被修改（他人或自己，都会更新
     },
-    loadFiles () {
-      this.files = [{
-        name: 'folder1',
-        showChildren: true,
-        children: [{
-          name: 'folder2',
-          showChildren: false,
-          children: [
-            { name: 'file1' },
-            { name: 'file2' }
-          ]
-        }, {
-          name: 'folder3',
-          showChildren: true,
-          children: [{ name: 'file3' }]
-        }]
-      }, { name: 'P_0001', id: 'P_0001' },
-      { name: 'P_0002', id: 'P_0002' },
-      { name: 'P_0004', id: 'P_0004' }
-      ];
+
+    /*
+     *  加载项目内容
+     */
+    loadProject (projectId) {
+      axios.get(`${this.host}/projects/details?projectId=${projectId}`).then((data) => {
+        this.project = data.data.project;
+      });
     },
     /*
      *  根据行和列获取字符串所在位置
@@ -168,7 +198,10 @@ export default {
      */
     init () {
       const nValue = this.doc.data;
-      this.editorConfig.content = nValue;
+      this.editorConfig.content = '';
+      setTimeout(() => {
+        this.editorConfig.content = nValue;
+      }, 0);        // 防止两个文件初始内容一致导致无刷新
       this.lockEditor();
     },
 
@@ -205,14 +238,45 @@ export default {
         // 长度为1代表从0开始，长度不为1代表从其他位置开始
         // add: {0: 12, 1: 'adb'} 或者 {0: 'adb'}
         // remove: {0: 12, 1: {d: 2}} 或者 {0: {d:2}}
-        if (op[op.length - 1].d) {      //  删除操作
-          const pStart = op.length === 1 ? 0 : op[0];
-          const pEnd = op.length === 1 ? op[0].d : op[0] + op[1].d;
-          const range = {
-            start: this.getPoint(pStart),
-            end: this.getPoint(pEnd)
-          };
-          this.ace.session.replace(range, '');      // 替换指定区域的内容
+        if (op[op.length - 1].d) {      //  替换操作操作
+          const type = typeof op[0];
+          if (type === 'object') {        // 从起始处进行删除操作
+            const pStart = 0;
+            const pEnd = op[0].d;
+            const range = {
+              start: this.getPoint(pStart),
+              end: this.getPoint(pEnd)
+            };
+            this.ace.session.replace(range, '');      // 替换指定区域的内容
+          } else if (type === 'string') {
+            const pStart = 0;
+            const pEnd = op[1].d;
+            const rangeDel = {
+              start: this.getPoint(pStart),
+              end: this.getPoint(pEnd)
+            };
+            const rangeAdd = {
+              start: this.getPoint(pStart),
+              end: this.getPoint(pStart)
+            };
+            this.ace.session.replace(rangeDel, '');      // 替换指定区域的内容
+            this.ace.session.replace(rangeAdd, op[0]);      // 替换指定区域的内容
+          } else if (type === 'number') {
+            const pStart = op[0];
+            const pEnd = op[0] + op[op.length - 1].d;
+            const range = {
+              start: this.getPoint(pStart),
+              end: this.getPoint(pEnd)
+            };
+            this.ace.session.replace(range, '');      // 替换指定区域的内容
+            if (op.length === 3) {
+              const rangeAdd = {
+                start: this.getPoint(pStart),
+                end: this.getPoint(pStart)
+              };
+              this.ace.session.replace(rangeAdd, op[1]);      // 替换指定区域的内容
+            }
+          }
         } else {
           // 新增操作
           const pStart = op.length === 1 ? 0 : op[0];
@@ -220,7 +284,7 @@ export default {
             start: this.getPoint(pStart),
             end: this.getPoint(pStart)
           };
-          this.ace.session.replace(range, op[1]);
+          this.ace.session.replace(range, op[op.length - 1]);
         }
       }
     }

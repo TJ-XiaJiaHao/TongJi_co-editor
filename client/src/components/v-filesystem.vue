@@ -3,7 +3,7 @@
     <vFileTree :files="files" @loadFile="loadFile"></vFileTree>
 
     <div class="menu" v-if="menu.show" :style="{left: menu.left + 'px', top: menu.top + 'px', width: menu.width + 'px'}">
-      <div v-for="item in menu.items" :style="{height: menu.itemHeight + 'px'}" @click="handleFn(item.handle)">{{item.name}}</div>
+      <div v-for="item in menu.items" :key="item.name" :style="{height: menu.itemHeight + 'px'}" @click="handleFn(item.handle)">{{item.name}}</div>
     </div>
   </div>
 </template>
@@ -34,6 +34,9 @@ export default {
         }, {
           name: '新建文件',
           handle: 'createFile'
+        }, {
+          name: '删除',
+          handle: 'delete'
         }]
       },
       rightClickFile: null,
@@ -51,6 +54,10 @@ export default {
     createFile () {
       this.$emit('createFile', this.rightClickFile.id);
     },
+    delete () {
+      if (this.rightClickFile.type === 0) this.$emit('deleteFolder', this.rightClickFile.id);
+      else if (this.rightClickFile.type === 1) this.$emit('deleteFile', this.rightClickFile.id);
+    },
     loadFile (id) {
       this.$emit('loadFile', id);
     },
@@ -63,11 +70,11 @@ export default {
     },
     rightClick (e) {
       // 记录右击选中的文件或文件夹
-      const folder = e.path.filter((item) => { return item.className && item.className.indexOf('folder') > 0; })[0];
-      const file = e.path.filter((item) => { return item.className && item.className.indexOf('file') > 0; })[0];
+      const folder = e.path.filter((item) => { return item.className && item.className.indexOf('type-folder') >= 0; })[0];
+      const file = e.path.filter((item) => { return item.className && item.className.indexOf('type-file') >= 0; })[0];
       if (folder) this.rightClickFile = { type: 0, id: folder.id };
-      else if (file) this.rightClickFile = { type: 1, id: file.id};
-      else this.rightClickFile = {type: -1, id: ''};
+      else if (file) this.rightClickFile = { type: 1, id: file.id };
+      else this.rightClickFile = {type: -1, id: '-1'};
 
       // 显示菜单栏
       const container = e.path.filter((item) => { return item.className === 'file-system'; })[0];

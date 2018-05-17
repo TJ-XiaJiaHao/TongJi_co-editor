@@ -54,7 +54,7 @@ router.post('/createFile', (req, res) => {
   const fileName = req.body.fileName;
   const fatherId = req.body.fatherId;
   if(!projectId || !fileName || !fatherId) res.json(ERROR.ARGUMENTS_ERROR);
-  else Project.createFile(projectId, fileName, 0, fatherId, (data) => { res.json(data); });
+  else Project.createFile(projectId, fileName, 1, fatherId, (data) => { res.json(data); });
 });
 
 router.post('/deleteFolder', (req, res) => {

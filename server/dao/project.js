@@ -2,6 +2,7 @@ const MongoClient = require('mongodb').MongoClient;                   //引入mo
 const DB_CONN_STR = 'mongodb://115.159.215.48:27017/COEDITOR';        //连接字符串
 const uuid = require('node-uuid');
 const ERROR = require('../model/ERROR');    // 错误编码
+const Doc = require('./doc');
 
 function connectToMongo (callback) {
   //使用客户端连接数据，并指定完成时的回调方法
@@ -28,6 +29,7 @@ function Folder (name) {
     name: name,
     id: uuid.v1(),
     children: [],
+    showChildren: true,
     createTime: Date.now()
   };
 }
@@ -115,15 +117,25 @@ function rename (projectId, userId, projectName, callback) {
   });
 }
 
+function sortFiles(files) {
+  files.sort((a, b) => {
+    if (a.children && !b.children) return false;
+    else if (!a.children && b.children) return true;
+    else return a.name > b.name;
+  });
+}
+
 function addToFiles (files, file, id) {
   if (id === '-1') {
     files.push(file);
+    sortFiles(files);
     return true;
   }
   let find = false;
   for (let i = 0; i < files.length; i++) {
     if(files[i].children && files[i].id === id) {
       files[i].children.push(file);
+      sortFiles(files[i].children);
       return true;
     } else if(files[i].children) {
       find = find || addToFiles(files[i].children, file, id);
@@ -133,18 +145,28 @@ function addToFiles (files, file, id) {
   return find;
 }
 
-function removeFromFiles (files, id) {
+function removeFromFiles (projectId, files, id) {
   let find = false;
   for (let i = 0;i < files.length; i++) {
     if (files[i].id === id) {
+      removeFilesInMongo(projectId, files[i]);
       files.splice(i, 1);
       return true;
     } else if (files[i].children) {
-      find = find || removeFromFiles(files[i].children, id);
+      find = find || removeFromFiles(projectId, files[i].children, id);
       if (find) return true;
     }
   }
   return find;
+}
+
+function removeFilesInMongo (collectionName, files) {
+  if (!files.children) Doc.deleteDoc(collectionName, files.id);
+  else {
+    for (let i = 0; i < files.children.length; i++) {
+      removeFilesInMongo(collectionName, files.children[i]);
+    }
+  }
 }
 
 function renameInFiles (files, id, name) {
@@ -175,7 +197,12 @@ function createFile (projectId, fileName, type, fatherId, callback) {
           collection.updateMany({projectId: projectId},{$set:{files:projectFiles}}, (err, res) => {
             closedb();
             if (err) callback && callback(ERROR.UPDATE_FAIL);
-            else callback && callback({code: ERROR.SUCCESS.code, msg: '创建文件成功', files: projectFiles});
+            else if(type === 1){
+              Doc.create(projectId, file.id, (data) => {
+                data.files = projectFiles;
+                callback && callback(data);
+              });
+            } else callback && callback ({code: ERROR.SUCCESS.code, msg: '文件夹创建成功', files: projectFiles});
           });
         });
       }
@@ -209,7 +236,7 @@ function removeFile (projectId, fileId, callback) {
     if (!res.project) callback && callback(ERROR.PROJECT_NOT_EXIST);
     else {
       const projectFiles = res.project.files.concat();
-      const canRemove = removeFromFiles(projectFiles, fileId);
+      const canRemove = removeFromFiles(projectId, projectFiles, fileId);
       if (!canRemove) callback && callback(ERROR.UPDATE_FAIL);
       else {
         connectToMongo((db, closedb) => {
@@ -217,7 +244,9 @@ function removeFile (projectId, fileId, callback) {
           collection.updateMany({projectId: projectId}, {$set: {files: projectFiles}}, (err, res) => {
             closedb();
             if (err) callback && callback(ERROR.UPDATE_FAIL);
-            else callback && callback({code: ERROR.SUCCESS.code, msg: '删除文件成功', files: projectFiles});
+            else {
+              callback && callback({code: ERROR.SUCCESS.code, msg: '删除文件成功', files: projectFiles});
+            }
           });
         });
       }
