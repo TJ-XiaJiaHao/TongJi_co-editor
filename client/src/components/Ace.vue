@@ -1,68 +1,65 @@
 <template>
-  <div class="ace-container">
-    <div class="left-content">
-      <vFileSystem :files = "project.files" @loadFile="loadFile"
-                   @createFolder="createFolder"
-                   @createFile="createFile"
-                   @deleteFolder="deleteFolder"
-                   @deleteFile="deleteFile"></vFileSystem>
-      <vSelector title="设定主题" :selections="themeSelections" @change="onThemeChange"></vSelector>
-    </div>
-    <div class="right-content">
-      <editor class="editor"
-              :content="editorConfig.content"
-              :lang="editorConfig.lang"
-              :theme="editorConfig.theme"
-              :sync="true"
-              height="100%"
-              width="100%"> </editor>
+  <div class="ace">
+    <vHeader :selections="user.projects"></vHeader>
+    <div class="content">
+      <div class="left">
+        <vFileSystem :files = "project.files" @loadFile="loadFile"
+                     @createFolder="createFolder"
+                     @createFile="createFile"
+                     @deleteFolder="deleteFolder"
+                     @deleteFile="deleteFile"
+                     @renameFolder="renameFolder"
+                     @renameFile="renameFile"></vFileSystem>
+      </div>
+      <div class="right">
+        <editor class="editor"
+                :content="editorConfig.content"
+                :lang="editorConfig.lang"
+                :theme="editorConfig.theme"
+                :sync="true"
+                height="100%"
+                width="100%"> </editor>
+      </div>
     </div>
   </div>
 </template>
 <script>
-import vSelector from '@/components/v-selector';
-import vFileSystem from '@/components/v-filesystem.vue';
-import editor from 'ace-vue2';
-import 'brace/mode/javascript';
-import 'brace/mode/css';
-import 'brace/theme/chrome';
-import 'brace/theme/monokai';
-import sharedb from 'sharedb/lib/client';
-import Websocket from 'ws';
-import otText from 'ot-text';
-import axios from 'axios';
+import vFileSystem from '@/components/v-filesystem.vue';      // 文件系统组件
+import vHeader from '@/components/v-header.vue';              // 头部组件
+import editor from 'ace-vue2';                                // 编辑器组件
+import 'brace/theme/monokai';                                 // 编辑器主题
+import sharedb from 'sharedb/lib/client';                     // sharedb客户端
+import Websocket from 'ws';                                   // websocket库
+import otText from 'ot-text';                                 // sharedb中存储的一种类型
+import axios from 'axios';                                    // http协议库
 
 export default {
   components: {
-    vSelector,
     vFileSystem,
+    vHeader,
     editor
   },
   data () {
     return {
-      ace: null,                                          // ace编辑器实例
-      doc: null,                                          // 当前正在编辑的文档
-      docs: [],
-      project: {},                                       // 当前项目详细信息
-      connection: null,                                  // sharedb连接
-      themeSelections: ['monokai', 'test'],
-      isEditorLoaded: false,
+      ace: null,                                        // ace编辑器实例
+      doc: null,                                        // 当前正在编辑的文档
+      project: {},                                      // 当前项目详细信息
+      connection: null,                                 // sharedb连接\
+      isEditorLoaded: false,                            // 编辑器是否加载完成
       editorConfig: {                                   // 编辑器配置
         content: '',
         lang: 'javascript',
         theme: 'monokai'
       },
+      user: {},                                          // 用户信息
       host: 'http://localhost:3000'                      // 后端主机
     };
   },
 
   mounted () {
-    const projectId = '4f5d9bd0-58e5-11e8-8854-2511af6a5590';
-    this.loadProject(projectId);
-    sharedb.types.register(otText.type);          // 注册text类型
+    // 编辑器初始化
     this.ace = this.$children[this.$children.length - 1].editor;          // 编辑器
     this.ace.session.on('change', (delta) => {    // 监听编辑器改动事件
-      // 编辑器初始化
       if (!this.isEditorLoaded) {
         // this.isEditorLoaded = true;
       } else if (delta.action === 'insert') {
@@ -71,12 +68,35 @@ export default {
         this.remove(delta.start.row, delta.start.column, delta.lines);
       }
     });
+
+    // sharedb初始化
+    sharedb.types.register(otText.type);          // 注册text类型
     const socket = new WebSocket('ws://localhost:3000/');
     this.connection = new sharedb.Connection(socket);
+
+    this.loadUserInfo();
   },
 
   methods: {
-    onThemeChange (nVal) {
+    /*
+     *  加载用户信息
+     */
+    loadUserInfo () {
+      this.user = {
+        projects: [{
+          id: '',
+          name: 'project1',
+          creater: '',
+          createTime: ''
+        }, {
+          id: '',
+          name: 'project2',
+          creater: '',
+          createTime: ''
+        }]
+      }
+      const projectId = '4f5d9bd0-58e5-11e8-8854-2511af6a5590';
+      this.loadProject(projectId);
     },
 
     /*
@@ -134,7 +154,30 @@ export default {
         });
       }
     },
-
+    renameFolder (id) {
+      const name = prompt('请输入文件名');
+      if (name) {
+        axios.post(`${this.host}/projects/renameFolder`, {
+          projectId: this.project.projectId,
+          folderId: id,
+          folderName: name
+        }).then((data) => {
+          this.project.files = data.data.files;
+        });
+      }
+    },
+    renameFile (id) {
+      const name = prompt('请输入文件名');
+      if (name) {
+        axios.post(`${this.host}/projects/renameFile`, {
+          projectId: this.project.projectId,
+          fileId: id,
+          fileName: name
+        }).then((data) => {
+          this.project.files = data.data.files;
+        });
+      }
+    },
     /*
      *  加载文档内容
      */
@@ -154,6 +197,7 @@ export default {
         this.project = data.data.project;
       });
     },
+
     /*
      *  根据行和列获取字符串所在位置
      */
@@ -205,6 +249,9 @@ export default {
       this.lockEditor();
     },
 
+    /*
+     *  锁定编辑器，让这之内的编辑操作不进行同步
+     */
     lockEditor () {
       this.isEditorLoaded = false;
       setTimeout(() => {
@@ -216,7 +263,7 @@ export default {
      */
     getPoint (position) {
       const lines = this.ace.getValue().split('\n');
-      const point = { row: 0, column: 0};
+      const point = {row: 0, column: 0};
       let count = 0;
       for (let i = 0; i < lines.length; i++) {
         if (count + lines[i].length + 1 > position) {
@@ -238,9 +285,10 @@ export default {
         // 长度为1代表从0开始，长度不为1代表从其他位置开始
         // add: {0: 12, 1: 'adb'} 或者 {0: 'adb'}
         // remove: {0: 12, 1: {d: 2}} 或者 {0: {d:2}}
-        if (op[op.length - 1].d) {      //  替换操作操作
+        // remove & add {0: 11, 1: 'new', 2: {d: 3}}
+        if (op[op.length - 1].d) {      //  替换操作
           const type = typeof op[0];
-          if (type === 'object') {        // 从起始处进行删除操作
+          if (type === 'object') {                    // 从起始处进行删除操作
             const pStart = 0;
             const pEnd = op[0].d;
             const range = {
@@ -248,7 +296,7 @@ export default {
               end: this.getPoint(pEnd)
             };
             this.ace.session.replace(range, '');      // 替换指定区域的内容
-          } else if (type === 'string') {
+          } else if (type === 'string') {             // 从起始处进行批量替换操作
             const pStart = 0;
             const pEnd = op[1].d;
             const rangeDel = {
@@ -259,9 +307,9 @@ export default {
               start: this.getPoint(pStart),
               end: this.getPoint(pStart)
             };
-            this.ace.session.replace(rangeDel, '');      // 替换指定区域的内容
+            this.ace.session.replace(rangeDel, '');         // 替换指定区域的内容
             this.ace.session.replace(rangeAdd, op[0]);      // 替换指定区域的内容
-          } else if (type === 'number') {
+          } else if (type === 'number') {             // 从非起始处进行删除或替换操作
             const pStart = op[0];
             const pEnd = op[0] + op[op.length - 1].d;
             const range = {
@@ -293,22 +341,25 @@ export default {
 </script>
 
 <style>
-.ace-container, .editor {
+.ace, .editor {
   width: 100%;
   height: 100%;
 }
-.ace-container {
+.ace {
+  display: flex;
+  flex-direction: column;
+}
+.content {
+  flex: 1;
   display: flex;
   flex-direction: row;
   justify-content: center;
 }
-.left-content {
+.left {
   width: 250px;
   height: 100%;
-  display: flex;
-  flex-direction: column;
 }
-.right-content {
+.right {
   flex: 1;
   height: 100%;
 }

@@ -3,7 +3,7 @@
     <vFileTree :files="files" @loadFile="loadFile"></vFileTree>
 
     <div class="menu" v-if="menu.show" :style="{left: menu.left + 'px', top: menu.top + 'px', width: menu.width + 'px'}">
-      <div v-for="item in menu.items" :key="item.name" :style="{height: menu.itemHeight + 'px'}" @click="handleFn(item.handle)">{{item.name}}</div>
+      <div class="menu-item" v-for="item in menu.items" :key="item.name" :style="{height: menu.itemHeight + 'px'}" @click="handleFn(item.handle)">{{item.name}}</div>
     </div>
   </div>
 </template>
@@ -37,6 +37,9 @@ export default {
         }, {
           name: '删除',
           handle: 'delete'
+        }, {
+          name: '重命名',
+          handle: 'rename'
         }]
       },
       rightClickFile: null,
@@ -46,6 +49,7 @@ export default {
   },
   methods: {
     handleFn (fn) {
+      this.menu.show = false;
       this[fn]();
     },
     createFolder () {
@@ -57,6 +61,10 @@ export default {
     delete () {
       if (this.rightClickFile.type === 0) this.$emit('deleteFolder', this.rightClickFile.id);
       else if (this.rightClickFile.type === 1) this.$emit('deleteFile', this.rightClickFile.id);
+    },
+    rename () {
+      if (this.rightClickFile.type === 0) this.$emit('renameFolder', this.rightClickFile.id);
+      else if (this.rightClickFile.type === 1) this.$emit('renameFile', this.rightClickFile.id);
     },
     loadFile (id) {
       this.$emit('loadFile', id);
@@ -93,13 +101,30 @@ export default {
 .file-system {
   width: 100%;
   height: 100%;
+  background: rgb(60, 63, 65);
   overflow-x: hidden;
   overflow-y: scroll;
   position: relative;
+  color: rgb(187, 187, 187);
 }
 .menu {
   position: absolute;
-  background: red;
+  border: 1px solid rgb(81, 81, 81);
+  background: rgb(60, 63, 65);
+  border-radius: 2px;
   z-index: 1000;
+}
+
+.menu-item {
+  border: 1px solid rgb(81, 81, 81);
+  padding: 3px 0px;
+  font-size: 14px;
+  cursor: default;
+}
+.menu-item:hover {
+  background: rgb(75, 110, 175);
+}
+::-webkit-scrollbar {/*隐藏滚轮*/
+  display: none;
 }
 </style>

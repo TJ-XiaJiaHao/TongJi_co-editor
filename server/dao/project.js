@@ -176,7 +176,7 @@ function renameInFiles (files, id, name) {
       files[i].name = name;
       return true;
     } else if (files[i].children) {
-      find = find || removeFromFiles(files[i].children, id);
+      find = find || renameInFiles(files[i].children, id, name);
       if (find) return true;
     }
   }
