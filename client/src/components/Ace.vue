@@ -55,7 +55,8 @@ export default {
         theme: 'monokai'
       },
       user: {},                                          // 用户信息
-      host: 'http://localhost:3000'                      // 后端主机
+      host: 'http://localhost:3000',                     // 后端主机
+      fsSocket: null                                     // 文件系统socket
     };
   },
 
@@ -77,6 +78,12 @@ export default {
     const socket = new WebSocket('ws://localhost:3000/');
     this.connection = new sharedb.Connection(socket);
 
+    // 文件系统socket初始化
+    this.fsSocket = new WebSocket('ws://localhost:3000/');
+    this.fsSocket.onmessage = (res) => {
+      const data = JSON.parse(res.data);
+      if (data.files) this.project.files = data.files;
+    };
     this.loadUserInfo();
   },
 
@@ -97,7 +104,7 @@ export default {
           creater: '',
           createTime: ''
         }]
-      }
+      };
       const projectId = '4f5d9bd0-58e5-11e8-8854-2511af6a5590';
       this.loadProject(projectId);
     },
@@ -111,6 +118,7 @@ export default {
         folderId: id
       }).then((data) => {
         this.project.files = data.data.files;
+        this.syncFS();
       });
     },
 
@@ -123,6 +131,7 @@ export default {
         fileId: id
       }).then((data) => {
         this.project.files = data.data.files;
+        this.syncFS();
       });
     },
 
@@ -138,6 +147,7 @@ export default {
           fatherId: father
         }).then((data) => {
           this.project.files = data.data.files;
+          this.syncFS();
         });
       }
     },
@@ -154,6 +164,7 @@ export default {
           fatherId: father
         }).then((data) => {
           this.project.files = data.data.files;
+          this.syncFS();
         });
       }
     },
@@ -166,6 +177,7 @@ export default {
           folderName: name
         }).then((data) => {
           this.project.files = data.data.files;
+          this.syncFS();
         });
       }
     },
@@ -178,9 +190,15 @@ export default {
           fileName: name
         }).then((data) => {
           this.project.files = data.data.files;
+          this.syncFS();
         });
       }
     },
+
+    syncFS () {
+      this.fsSocket.send(JSON.stringify({type: 'fs', id: this.project.projectId, op: 'update', files: this.project.files}));
+    },
+
     /*
      *  加载文档内容
      */
@@ -198,6 +216,7 @@ export default {
     loadProject (projectId) {
       axios.get(`${this.host}/projects/details?projectId=${projectId}`).then((data) => {
         this.project = data.data.project;
+        this.fsSocket.send(JSON.stringify({type: 'fs', id: this.project.projectId, op: 'init'}));
       });
     },
 

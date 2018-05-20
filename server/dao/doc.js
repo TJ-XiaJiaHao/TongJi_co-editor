@@ -13,13 +13,7 @@ ShareDB.types.register(otText.type);
 const backend = new ShareDB({db});    // sharedb实例
 const connection = backend.connect();
 
-function Doc(doc) {
-  return {
-    id: doc.id,
-    collection: doc.collection,
-    value: doc.data
-  };
-}
+const fsSockets = [];
 
 function initWS(server) {
 // Connect any incoming WebSocket connection to ShareDB
@@ -34,11 +28,38 @@ function initWS(server) {
     // 并通过放入 stream 的缓存区 (push)，交给 ShareDB 处理
     ws.on('message', function(msg) {
       console.log('get message:', msg);
-      stream.push(JSON.parse(msg));
+      if (JSON.parse(msg).type === 'fs') processFSSocket(ws, JSON.parse(msg));
+      else stream.push(JSON.parse(msg));
     });
 
     backend.listen(stream);
   });
+}
+
+function processFSSocket(ws, msg) {
+  const fs = fsSockets.filter((item) => {return item.id === msg.id; })[0];
+  if (fs) {
+    if (msg.op === 'init') {
+      fs.wss.push(ws);
+    } else if (msg.op === 'update') {
+      for (let i = 0; i < fs.wss.length; i++) {
+        fs.wss[i].readyState === WebSocket.OPEN && fs.wss[i].send(JSON.stringify({files: msg.files}));
+      }
+    }
+  } else {
+    fsSockets.push({
+      id: msg.id,
+      wss: [ws]
+    });
+  }
+}
+
+function Doc(doc) {
+  return {
+    id: doc.id,
+    collection: doc.collection,
+    value: doc.data
+  };
 }
 
 function create(collectionName, documentId, callback) {
