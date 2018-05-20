@@ -3,7 +3,7 @@
     <div class="header-left">
       <img :src="projectIcon" class="icon-project"/>
       <select class="select">
-        <option v-for="selection in selections" :key="selection">{{selection.name}}</option>
+        <option v-for="selection in selections" :key="selection.name">{{selection.name}}</option>
       </select>
       <div class="op-container">
         <img :src="addIcon" class="op-icon"/>

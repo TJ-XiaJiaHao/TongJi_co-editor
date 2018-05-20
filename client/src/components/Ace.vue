@@ -27,6 +27,9 @@
 import vFileSystem from '@/components/v-filesystem.vue';      // 文件系统组件
 import vHeader from '@/components/v-header.vue';              // 头部组件
 import editor from 'ace-vue2';                                // 编辑器组件
+import 'brace/mode/javascript';
+import 'brace/mode/css';
+import 'brace/theme/chrome';
 import 'brace/theme/monokai';                                 // 编辑器主题
 import sharedb from 'sharedb/lib/client';                     // sharedb客户端
 import Websocket from 'ws';                                   // websocket库
