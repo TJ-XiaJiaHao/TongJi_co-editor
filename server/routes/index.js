@@ -21,11 +21,6 @@ function createDoc(callback) {
 }
 /* GET home page. */
 router.get('/', function(req, res, next) {
-  var connection = backend.connect();
-  var doc = connection.get('COEDITOR', 'FOLDER1FILE1');
-  doc.fetch(function(err) {
-      console.log(doc);
-  });
   res.render('index', { title: 'Express', db: db });
 });
 

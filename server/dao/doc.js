@@ -27,7 +27,6 @@ function initWS(server) {
     // 服务端收到数据后，需要将数据从 JSON 转换为 Object
     // 并通过放入 stream 的缓存区 (push)，交给 ShareDB 处理
     ws.on('message', function(msg) {
-      console.log('get message:', msg);
       if (JSON.parse(msg).type === 'fs') processFSSocket(ws, JSON.parse(msg));
       else stream.push(JSON.parse(msg));
     });

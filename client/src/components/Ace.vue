@@ -1,6 +1,8 @@
 <template>
   <div class="ace">
-    <vHeader :selections="user.projects"></vHeader>
+    <vHeader :selections="user.projects" :user="user"
+             @login="login"
+             @register="register"></vHeader>
     <div class="content">
       <div class="left">
         <vFileSystem :files = "project.files" @loadFile="loadFile"
@@ -84,29 +86,48 @@ export default {
       const data = JSON.parse(res.data);
       if (data.files) this.project.files = data.files;
     };
+
+    axios.defaults.withCredentials = true;            // 配置axios自动设置cookie
     this.loadUserInfo();
   },
 
   methods: {
+
+    login (username, password) {
+      axios.post(`${this.host}/users/login`, {
+        username,
+        password
+      }).then((res) => {
+        const data = res.data;
+        if (data.code === 0) {
+          this.user = data.user;
+        }
+      });
+    },
+
+    register (username, password) {
+      axios.post(`${this.host}/users/register`, {
+        username,
+        password
+      }).then((res) => {
+        const data = res.data;
+        if (data.code === 0) {
+          this.user = data.user;
+        }
+      });
+    },
+
     /*
      *  加载用户信息
      */
     loadUserInfo () {
-      this.user = {
-        projects: [{
-          id: '',
-          name: 'project1',
-          creater: '',
-          createTime: ''
-        }, {
-          id: '',
-          name: 'project2',
-          creater: '',
-          createTime: ''
-        }]
-      };
-      const projectId = '4f5d9bd0-58e5-11e8-8854-2511af6a5590';
-      this.loadProject(projectId);
+      axios.get(`${this.host}/users/getUserInfo`).then((res) => {
+        if (res.data.code === 0) {
+          this.user = res.data.user;
+        }
+      });
+      // const projectId = '4f5d9bd0-58e5-11e8-8854-2511af6a5590';
+      // loadProject(projectId);
     },
 
     /*

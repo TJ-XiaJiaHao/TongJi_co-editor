@@ -89,7 +89,7 @@ export default {
       const containerHeight = container.offsetHeight;
       const containerWidth = container.offsetWidth;
       this.menu.show = true;
-      this.menu.top = e.clientY + this.scrollTop + 5;
+      this.menu.top = e.clientY + this.scrollTop + 5 - 20;
       this.menu.left = e.clientX + this.scrollLeft + 5;
       if (e.clientX + this.menu.width > containerWidth) this.menu.left -= this.menu.width + 10;
       if (e.clientY + this.menu.items.length * this.menu.itemHeight > containerHeight) this.menu.top -= this.menu.items.length * this.menu.itemHeight + 10;
