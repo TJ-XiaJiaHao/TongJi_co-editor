@@ -109,6 +109,8 @@ export default {
         if (res.data.code === 0) {
           this.user = res.data.user;
           this.fsSocket.send(JSON.stringify({type: 'user', id: this.user.id, op: 'init'}));
+        } else {
+          this.user = {};
         }
       });
     },

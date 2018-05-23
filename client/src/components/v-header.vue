@@ -21,8 +21,8 @@
         <label class="login-btn" @click="register">注册</label>
       </div>
       <div class="userinfo" v-else>
-        <label class="username" :class="{'notification': user.invitedProjects}"  @click="showNotification = true">{{user.name.substr(0,1)}}</label>
-        <img :src="logoutIcon" class="icon-logout" />
+        <label class="username" :class="{'notification': user.invitedProjects.length > 0}"  @click="showNotification = true">{{user.name.substr(0,1)}}</label>
+        <img :src="logoutIcon" class="icon-logout" @click="logout"/>
       </div>
     </div>
 
@@ -117,6 +117,12 @@ export default {
           if (data.code === 0) this.$emit('updateUserInfo');
         });
       }
+    },
+    logout () {
+      axios.post(`${this.host}/users/logout`).then((res) => {
+        const data = res.data;
+        if (data.code === 0) this.$emit('updateUserInfo');
+      });
     },
     register () {
       if (this.username && this.password) {

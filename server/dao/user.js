@@ -112,6 +112,7 @@ function processInvite (projectId, userId, accept, callback) {
       if(err){closedb();callback && callback(ERROR.FIND_FAIL);}
       else if(res.length === 0) {closedb();callback && callback(ERROR.USER_NOT_EXIST);}
       else {
+        const user = res[0];
         const nInvitedProjects = res[0].invitedProjects;
         const nJoinProjects = res[0].joinProjects;
         for (let i = 0; i < nInvitedProjects.length; i++) {
@@ -125,9 +126,27 @@ function processInvite (projectId, userId, accept, callback) {
         collection.updateMany({id: userId}, {$set: {invitedProjects: nInvitedProjects, joinProjects: nJoinProjects}}, (err) => {
           closedb();
           if (err) callback && callback(ERROR.UPDATE_FAIL);
-          else callback && callback({code: ERROR.SUCCESS.code, msg: '处理成功'});
+          else if (!accept) callback && callback({code: ERROR.SUCCESS.code, msg: '处理成功'});
+          else addUserToProject(projectId, user.id, user.name, callback);
         });
       }
+    });
+  });
+}
+
+function addUserToProject (projectId, userId, username, callback) {
+  connectToMongo((db, closedb) => {
+    const collection = db.collection('projects');
+    collection.find({projectId: projectId}).toArray((err, res) => {
+      if(err){closedb();callback && callback(ERROR.FIND_FAIL);}
+      const opUsers = res[0].opUsers.concat();
+      const oUser = opUsers.filter((item) => {item.id = userId;})[0];
+      if(!oUser) opUsers.push({id: userId, name: username});
+      collection.updateMany({projectId: projectId}, {$set: {opUsers: opUsers}}, (err) => {
+        closedb();
+        if (err) callback && callback(ERROR.UPDATE_FAIL);
+        callback && callback({code: ERROR.SUCCESS.code, msg: '处理成功'});
+      });
     });
   });
 }

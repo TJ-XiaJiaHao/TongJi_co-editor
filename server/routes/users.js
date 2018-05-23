@@ -25,6 +25,10 @@ router.post('/login', (req, res) => {
   if(!username || !password) res.json(ERROR.ARGUMENTS_ERROR);
   else User.login(username, password, (data) => { if (data.code === 0) req.session.user = data.user; res.json(data); });
 });
+router.post('/logout', (req, res) => {
+  req.session.user = null;
+  res.json({code: 0});
+});
 
 // 获取用户信息
 router.get('/getUserInfo', (req, res) => {
