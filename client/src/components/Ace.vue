@@ -1,8 +1,11 @@
 <template>
   <div class="ace">
-    <vHeader :selections="user.projects" :user="user"
+    <vHeader :selections="user.selfProjects" :user="user" :project="project"
              @login="login"
-             @register="register"></vHeader>
+             @register="register"
+             @createProject="createProject"
+             @changeProject="loadProject"
+             @inviteUser="inviteUser"></vHeader>
     <div class="content">
       <div class="left">
         <vFileSystem :files = "project.files" @loadFile="loadFile"
@@ -58,7 +61,7 @@ export default {
       },
       user: {},                                          // 用户信息
       host: 'http://localhost:3000',                     // 后端主机
-      fsSocket: null                                     // 文件系统socket
+      fsSocket: null                                    // 文件系统socket
     };
   },
 
@@ -84,7 +87,7 @@ export default {
     this.fsSocket = new WebSocket('ws://localhost:3000/');
     this.fsSocket.onmessage = (res) => {
       const data = JSON.parse(res.data);
-      if (data.files) this.project.files = data.files;
+      if (data.project) this.project = data.project;
     };
 
     axios.defaults.withCredentials = true;            // 配置axios自动设置cookie
@@ -92,6 +95,35 @@ export default {
   },
 
   methods: {
+    /*
+     * 项目基本操作
+     */
+    createProject () {
+      const name = prompt('请输入项目名');
+      if (name) {
+        axios.post(`${this.host}/projects/create`, {
+          projectName: name
+        }).then((res) => {
+          const data = res.data;
+          this.user.selfProjects = data.selfProjects;
+        });
+      }
+    },
+    loadProject (projectId) {
+      axios.get(`${this.host}/projects/details?projectId=${projectId}`).then((data) => {
+        this.project = data.data.project;
+        this.fsSocket.send(JSON.stringify({type: 'fs', id: this.project.projectId, op: 'init'}));
+      });
+    },
+    inviteUser (username) {
+      axios.post(`${this.host}/projects/inviteUser`, {
+        projectId: this.project.projectId,
+        username: username
+      }).then((res) => {
+        const data = res.data;
+        console.log(data);
+      });
+    },
 
     login (username, password) {
       axios.post(`${this.host}/users/login`, {
@@ -131,7 +163,7 @@ export default {
     },
 
     /*
-     *  删除文件夹
+     *  文件系统基本操作
      */
     deleteFolder (id) {
       axios.post(`${this.host}/projects/deleteFolder`, {
@@ -142,10 +174,6 @@ export default {
         this.syncFS();
       });
     },
-
-    /*
-     *  删除文件
-     */
     deleteFile (id) {
       axios.post(`${this.host}/projects/deleteFile`, {
         projectId: this.project.projectId,
@@ -155,10 +183,6 @@ export default {
         this.syncFS();
       });
     },
-
-    /*
-     *  新建文件夹
-     */
     createFolder (father) {
       const name = prompt('请输入文件名');
       if (name) {
@@ -172,10 +196,6 @@ export default {
         });
       }
     },
-
-    /*
-     *  新建文件
-     */
     createFile (father) {
       const name = prompt('请输入文件名');
       if (name) {
@@ -217,7 +237,7 @@ export default {
     },
 
     syncFS () {
-      this.fsSocket.send(JSON.stringify({type: 'fs', id: this.project.projectId, op: 'update', files: this.project.files}));
+      this.fsSocket.send(JSON.stringify({type: 'fs', id: this.project.projectId, op: 'update', project: this.project}));
     },
 
     /*
@@ -229,16 +249,6 @@ export default {
       this.doc = this.connection.get(this.project.projectId, id);
       this.doc.subscribe(this.init);    // 订阅
       this.doc.on('op', this.update);     // 文件被修改（他人或自己，都会更新
-    },
-
-    /*
-     *  加载项目内容
-     */
-    loadProject (projectId) {
-      axios.get(`${this.host}/projects/details?projectId=${projectId}`).then((data) => {
-        this.project = data.data.project;
-        this.fsSocket.send(JSON.stringify({type: 'fs', id: this.project.projectId, op: 'init'}));
-      });
     },
 
     /*

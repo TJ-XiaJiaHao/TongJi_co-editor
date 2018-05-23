@@ -10,6 +10,7 @@ function User (name, pwd) {
     id: uuid.v1(),
     selfProjects: [],
     joinProjects: [],
+    invitedProjects: [],
     lastProjectId: ''
   };
 }
@@ -27,11 +28,15 @@ function connectToMongo (callback) {
 function register (name, pwd, callback) {
   connectToMongo((db, closedb) => {
     const collection = db.collection('users');
+
+    // 用户名查重
     collection.find({name: name}).toArray((err, res) => {
       if (err) { closedb(); callback && callback(ERROR.FIND_FAIL);}
-      else if (res.length !== 0) { closedb(); callback && callback (ERROR.USER_EXIST);}
+      else if (res.length !== 0) { closedb(); callback && callback (ERROR.USER_EXIST);}       // 用户已存在
       else {
         const emptyUser = new User(name, pwd);
+
+        // 新增用户
         collection.insert(emptyUser, (err) => {
           closedb();
           if (err) callback && callback(ERROR.INSERT_FAIL);
@@ -42,7 +47,8 @@ function register (name, pwd, callback) {
               id: emptyUser.id,
               name: emptyUser.name,
               selfProjects: emptyUser.selfProjects,
-              joinProjects: emptyUser.joinProjects
+              joinProjects: emptyUser.joinProjects,
+              invitedProjects: emptyUser.invitedProjects
             }
           });
         });
@@ -50,13 +56,16 @@ function register (name, pwd, callback) {
     });
   });
 }
+
+// 登陆
 function login (name, pwd, callback) {
   connectToMongo((db, closedb) => {
     const collection = db.collection('users');
+    // 用户名和密码检查
     collection.find({name: name, password: pwd}).toArray((err, res) => {
       closedb();
       if (err) callback && callback(ERROR.FIND_FAIL);
-      else if (res.length === 0) callback && callback (ERROR.LOGIN_FAIL);
+      else if (res.length === 0) callback && callback (ERROR.LOGIN_FAIL);         // 用户名或密码错误
       else callback && callback({
           code: ERROR.SUCCESS.code,
           msg: '',
@@ -64,14 +73,67 @@ function login (name, pwd, callback) {
             name: res[0].name,
             id: res[0].id,
             selfProjects: res[0].selfProjects,
-            joinProjects: res[0].joinProjects
+            joinProjects: res[0].joinProjects,
+            invitedProjects: res[0].invitedProjects
           }
         });
     });
   });
 }
 
+
+// 获取用户信息
+function getUserInfo (userId, callback) {
+  connectToMongo((db, closedb) => {
+    const collection = db.collection('users');
+    collection.find({id: userId}).toArray((err, res) => {
+      closedb();
+      if (err) callback && callback(ERROR.FIND_FAIL);
+      else if (res.length === 0) callback && callback (ERROR.USER_NOT_EXIST);
+      else callback && callback({
+          code: ERROR.SUCCESS.code,
+          msg: '',
+          user: {
+            name: res[0].name,
+            id: res[0].id,
+            selfProjects: res[0].selfProjects,
+            joinProjects: res[0].joinProjects,
+            invitedProjects: res[0].invitedProjects
+          }
+        });
+    });
+  });
+}
+
+function processInvite (projectId, userId, accept, callback) {
+  connectToMongo((db, closedb) => {
+    const collection = db.collection('users');
+    collection.find({id: userId}).toArray((err, res) => {
+      if(err){closedb();callback && callback(ERROR.FIND_FAIL);}
+      else if(res.length === 0) {closedb();callback && callback(ERROR.USER_NOT_EXIST);}
+      else {
+        const nInvitedProjects = res[0].invitedProjects;
+        const nJoinProjects = res[0].joinProjects;
+        for (let i = 0; i < nInvitedProjects.length; i++) {
+          if(nInvitedProjects[i].projectId === projectId) {
+            if(accept) nJoinProjects.push(nInvitedProjects[i]);
+            nInvitedProjects.splice(i, 1);
+            break;
+          }
+        }
+        collection.updateMany({id: userId}, {$set: {invitedProjects: nInvitedProjects, joinProjects: nJoinProjects}}, (err) => {
+          closedb();
+          if (err) callback && callback(ERROR.UPDATE_FAIL);
+          else callback && callback({code: ERROR.SUCCESS.code, msg: '处理成功'});
+        });
+      }
+    });
+  });
+}
+
 module.exports = {
   register,
-  login
+  login,
+  getUserInfo,
+  processInvite
 };

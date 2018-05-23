@@ -42,7 +42,7 @@ function processFSSocket(ws, msg) {
       fs.wss.push(ws);
     } else if (msg.op === 'update') {
       for (let i = 0; i < fs.wss.length; i++) {
-        fs.wss[i].readyState === WebSocket.OPEN && fs.wss[i].send(JSON.stringify({files: msg.files}));
+        fs.wss[i].readyState === WebSocket.OPEN && fs.wss[i].send(JSON.stringify({project: msg.project}));
       }
     }
   } else {
@@ -120,19 +120,10 @@ function deleteDoc(collectionName, documentId, callback) {
   })
 }
 
-function deleteCollection(collectionName, callback) {
-
-}
-
-// 同步所有编辑者的文件
-function syncDoc() {
-
-}
 module.exports = {
   create,
   update,
   getDocsByCollectionName,
   deleteDoc,
-  deleteCollection,
   initWS,
 };
