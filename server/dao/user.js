@@ -98,7 +98,7 @@ function getUserInfo (userId, callback) {
             id: res[0].id,
             selfProjects: res[0].selfProjects,
             joinProjects: res[0].joinProjects,
-            invitedProjects: res[0].invitedProjects
+            invitedProjects: res[0].invitedProjects,
           }
         });
     });
@@ -116,7 +116,8 @@ function processInvite (projectId, userId, accept, callback) {
         const nJoinProjects = res[0].joinProjects;
         for (let i = 0; i < nInvitedProjects.length; i++) {
           if(nInvitedProjects[i].projectId === projectId) {
-            if(accept) nJoinProjects.push(nInvitedProjects[i]);
+            const oJoinProjects = nJoinProjects.filter((item) => {return item.projectId === projectId;})[0];
+            if(accept && !oJoinProjects) nJoinProjects.push(nInvitedProjects[i]);
             nInvitedProjects.splice(i, 1);
             break;
           }

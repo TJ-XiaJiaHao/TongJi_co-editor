@@ -14,6 +14,7 @@ const backend = new ShareDB({db});    // sharedb实例
 const connection = backend.connect();
 
 const fsSockets = [];
+const userSockets = [];
 
 function initWS(server) {
 // Connect any incoming WebSocket connection to ShareDB
@@ -28,6 +29,7 @@ function initWS(server) {
     // 并通过放入 stream 的缓存区 (push)，交给 ShareDB 处理
     ws.on('message', function(msg) {
       if (JSON.parse(msg).type === 'fs') processFSSocket(ws, JSON.parse(msg));
+      else if(JSON.parse(msg).type === 'user') processUserSocket(ws, JSON.parse(msg));
       else stream.push(JSON.parse(msg));
     });
 
@@ -35,14 +37,37 @@ function initWS(server) {
   });
 }
 
+function notifyUser (userId, msg) {
+  const user = userSockets.filter((item) => { return item.userId === userId; })[0];
+  if(user) {
+    user.ws.readyState === WebSocket.OPEN && user.ws.send(msg);
+  }
+}
+
+function processUserSocket (ws, msg) {
+  const user = userSockets.filter((item) => { return item.userId === msg.id; })[0];
+  if (!user) userSockets.push({
+    userId: msg.id,
+    ws: ws
+  });
+  else user.ws = ws;
+}
+
 function processFSSocket(ws, msg) {
   const fs = fsSockets.filter((item) => {return item.id === msg.id; })[0];
   if (fs) {
     if (msg.op === 'init') {
       fs.wss.push(ws);
-    } else if (msg.op === 'update') {
+    } else if (msg.op === 'close') {
       for (let i = 0; i < fs.wss.length; i++) {
-        fs.wss[i].readyState === WebSocket.OPEN && fs.wss[i].send(JSON.stringify({project: msg.project}));
+        if (fs.wss[i] === ws) {
+          fs.wss.splice(i, 1);
+          break;
+        }
+      }
+    }else if (msg.op === 'update') {
+      for (let i = 0; i < fs.wss.length; i++) {
+        fs.wss[i].readyState === WebSocket.OPEN && fs.wss[i].send(JSON.stringify({type: 'fs', project: msg.project}));
       }
     }
   } else {
@@ -126,4 +151,5 @@ module.exports = {
   getDocsByCollectionName,
   deleteDoc,
   initWS,
+  notifyUser
 };

@@ -208,6 +208,7 @@ function inviteUser (projectId, username, owername, callback) {
           if (err) {closedb(); callback && callback(ERROR.FIND_FAIL);}
           else if(res.length === 0) {closedb();callback && callback(ERROR.USER_NOT_EXIST);}
           else{
+            const toUserId = res[0].id;
             const nInvitedProjects =  res[0].invitedProjects.concat();
             if (nInvitedProjects.filter((item) => { return item.projectId === projectId; }).length === 0) nInvitedProjects.push({
               projectId: project.projectId,
@@ -219,7 +220,7 @@ function inviteUser (projectId, username, owername, callback) {
             collection.updateMany({name: username}, {$set: {invitedProjects: nInvitedProjects}}, (err) => {
               closedb();
               if (err) callback && callback(ERROR.UPDATE_FAIL);
-              else callback && callback({code: ERROR.SUCCESS.code, msg: '邀请成功'});
+              else callback && callback({code: ERROR.SUCCESS.code, msg: '邀请成功', userId: toUserId});
             });
           }
         });

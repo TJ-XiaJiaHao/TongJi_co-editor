@@ -1,20 +1,12 @@
 <template>
   <div class="ace">
-    <vHeader :selections="user.selfProjects" :user="user" :project="project"
-             @login="login"
-             @register="register"
-             @createProject="createProject"
+    <vHeader :user="user" :host="host"
              @changeProject="loadProject"
-             @inviteUser="inviteUser"></vHeader>
+             @updateUserInfo="loadUserInfo"></vHeader>
     <div class="content">
       <div class="left">
-        <vFileSystem :files = "project.files" @loadFile="loadFile"
-                     @createFolder="createFolder"
-                     @createFile="createFile"
-                     @deleteFolder="deleteFolder"
-                     @deleteFile="deleteFile"
-                     @renameFolder="renameFolder"
-                     @renameFile="renameFile"></vFileSystem>
+        <vFileSystem :project = "project" @loadFile="loadFile" :host="host"
+                     @syncFS="syncFS"></vFileSystem>
       </div>
       <div class="right">
         <editor class="editor"
@@ -87,7 +79,8 @@ export default {
     this.fsSocket = new WebSocket('ws://localhost:3000/');
     this.fsSocket.onmessage = (res) => {
       const data = JSON.parse(res.data);
-      if (data.project) this.project = data.project;
+      if (data.type === 'fs' && data.project && data.project.projectId === this.project.projectId) this.project = data.project;
+      else if (data.type === 'notification') this.loadUserInfo();
     };
 
     axios.defaults.withCredentials = true;            // 配置axios自动设置cookie
@@ -95,154 +88,32 @@ export default {
   },
 
   methods: {
-    /*
-     * 项目基本操作
-     */
-    createProject () {
-      const name = prompt('请输入项目名');
-      if (name) {
-        axios.post(`${this.host}/projects/create`, {
-          projectName: name
-        }).then((res) => {
-          const data = res.data;
-          this.user.selfProjects = data.selfProjects;
-        });
-      }
-    },
+    // 加载项目内容
     loadProject (projectId) {
+      if (!this.project || this.project.projectId !== projectId) this.fsSocket.send(JSON.stringify({type: 'fs', id: this.project.projectId, op: 'close'}));
       axios.get(`${this.host}/projects/details?projectId=${projectId}`).then((data) => {
         this.project = data.data.project;
         this.fsSocket.send(JSON.stringify({type: 'fs', id: this.project.projectId, op: 'init'}));
       });
     },
-    inviteUser (username) {
-      axios.post(`${this.host}/projects/inviteUser`, {
-        projectId: this.project.projectId,
-        username: username
-      }).then((res) => {
-        const data = res.data;
-        console.log(data);
-      });
+
+    // 同步文件系统
+    syncFS (files) {
+      if (files) this.project.files = files;
+      this.fsSocket.send(JSON.stringify({type: 'fs', id: this.project.projectId, op: 'update', project: this.project}));
     },
 
-    login (username, password) {
-      axios.post(`${this.host}/users/login`, {
-        username,
-        password
-      }).then((res) => {
-        const data = res.data;
-        if (data.code === 0) {
-          this.user = data.user;
-        }
-      });
-    },
-
-    register (username, password) {
-      axios.post(`${this.host}/users/register`, {
-        username,
-        password
-      }).then((res) => {
-        const data = res.data;
-        if (data.code === 0) {
-          this.user = data.user;
-        }
-      });
-    },
-
-    /*
-     *  加载用户信息
-     */
+    // 加载用户信息
     loadUserInfo () {
       axios.get(`${this.host}/users/getUserInfo`).then((res) => {
         if (res.data.code === 0) {
           this.user = res.data.user;
+          this.fsSocket.send(JSON.stringify({type: 'user', id: this.user.id, op: 'init'}));
         }
       });
-      // const projectId = '4f5d9bd0-58e5-11e8-8854-2511af6a5590';
-      // loadProject(projectId);
     },
 
-    /*
-     *  文件系统基本操作
-     */
-    deleteFolder (id) {
-      axios.post(`${this.host}/projects/deleteFolder`, {
-        projectId: this.project.projectId,
-        folderId: id
-      }).then((data) => {
-        this.project.files = data.data.files;
-        this.syncFS();
-      });
-    },
-    deleteFile (id) {
-      axios.post(`${this.host}/projects/deleteFile`, {
-        projectId: this.project.projectId,
-        fileId: id
-      }).then((data) => {
-        this.project.files = data.data.files;
-        this.syncFS();
-      });
-    },
-    createFolder (father) {
-      const name = prompt('请输入文件名');
-      if (name) {
-        axios.post(`${this.host}/projects/createFolder`, {
-          projectId: this.project.projectId,
-          folderName: name,
-          fatherId: father
-        }).then((data) => {
-          this.project.files = data.data.files;
-          this.syncFS();
-        });
-      }
-    },
-    createFile (father) {
-      const name = prompt('请输入文件名');
-      if (name) {
-        axios.post(`${this.host}/projects/createFile`, {
-          projectId: this.project.projectId,
-          fileName: name,
-          fatherId: father
-        }).then((data) => {
-          this.project.files = data.data.files;
-          this.syncFS();
-        });
-      }
-    },
-    renameFolder (id) {
-      const name = prompt('请输入文件名');
-      if (name) {
-        axios.post(`${this.host}/projects/renameFolder`, {
-          projectId: this.project.projectId,
-          folderId: id,
-          folderName: name
-        }).then((data) => {
-          this.project.files = data.data.files;
-          this.syncFS();
-        });
-      }
-    },
-    renameFile (id) {
-      const name = prompt('请输入文件名');
-      if (name) {
-        axios.post(`${this.host}/projects/renameFile`, {
-          projectId: this.project.projectId,
-          fileId: id,
-          fileName: name
-        }).then((data) => {
-          this.project.files = data.data.files;
-          this.syncFS();
-        });
-      }
-    },
-
-    syncFS () {
-      this.fsSocket.send(JSON.stringify({type: 'fs', id: this.project.projectId, op: 'update', project: this.project}));
-    },
-
-    /*
-     *  加载文档内容
-     */
+    // 加载文件内容
     loadFile (id) {
       if (this.doc && this.doc.id === id) return;                 // 去除无效操作
       if (this.doc) this.doc._events.op = null;                   // 清空监听事件
@@ -251,19 +122,13 @@ export default {
       this.doc.on('op', this.update);     // 文件被修改（他人或自己，都会更新
     },
 
-    /*
-     *  根据行和列获取字符串所在位置
-     */
+    // 编辑器辅助工具
     getPosition (row, column) {
       const lines = this.ace.getValue().split('\n');                    // 获取文档中所有行的内容
       let position = column;
       for (let i = 0; i < row; i++) position += lines[i].length + 1;
       return position;
     },
-
-    /*
-     *  把行数组转换成一个字符串
-     */
     getStringFromLines (lines) {
       let str = lines[0];
       for (let i = 1; i < lines.length; i++) {
@@ -271,49 +136,12 @@ export default {
       }
       return str;
     },
-
-    /*
-     *  新增操作
-     */
-    add (row, column, lines) {
-      const position = this.getPosition(row, column);
-      const string = this.getStringFromLines(lines);
-      this.doc.submitOp([position, string]);    // 在position的位置插入string字符串
-    },
-
-    /*
-     *  删除操作
-     */
-    remove (row, column, lines) {
-      const position = this.getPosition(row, column);
-      const string = this.getStringFromLines(lines);
-      this.doc.submitOp([position, {d: string.length}]);    // 在position位置删除长度为string.length的字符串
-    },
-
-    /*
-     *  第一次获取文档内容后初始化
-     */
-    init () {
-      const nValue = this.doc.data;
-      this.editorConfig.content = '';
-      setTimeout(() => {
-        this.editorConfig.content = nValue;
-      }, 0);        // 防止两个文件初始内容一致导致无刷新
-      this.lockEditor();
-    },
-
-    /*
-     *  锁定编辑器，让这之内的编辑操作不进行同步
-     */
     lockEditor () {
       this.isEditorLoaded = false;
       setTimeout(() => {
         this.isEditorLoaded = true;
       }, 20);
     },
-    /*
-     *  把位置转化成行和列的对象
-     */
     getPoint (position) {
       const lines = this.ace.getValue().split('\n');
       const point = {row: 0, column: 0};
@@ -329,9 +157,29 @@ export default {
       return point;
     },
 
-    /*
-     *  他人或自己对文档进行修改后进行更新
-     */
+    // 编辑器操作
+    add (row, column, lines) {
+      const position = this.getPosition(row, column);
+      const string = this.getStringFromLines(lines);
+      this.doc.submitOp([position, string]);    // 在position的位置插入string字符串
+    },
+    remove (row, column, lines) {
+      const position = this.getPosition(row, column);
+      const string = this.getStringFromLines(lines);
+      this.doc.submitOp([position, {d: string.length}]);    // 在position位置删除长度为string.length的字符串
+    },
+
+    // 文件内容加载完成后进行初始化
+    init () {
+      const nValue = this.doc.data;
+      this.editorConfig.content = '';
+      setTimeout(() => {
+        this.editorConfig.content = nValue;
+      }, 0);        // 防止两个文件初始内容一致导致无刷新
+      this.lockEditor();
+    },
+
+    // 同步更新文件
     update (op, source) {
       if (!source && this.ace) {          // source === true代表此次操作是该客户端操作的，无需重复修改
         this.lockEditor();

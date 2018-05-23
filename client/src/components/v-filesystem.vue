@@ -1,23 +1,36 @@
 <template>
   <div @click="leftClick" @contextmenu.prevent="rightClick" class="file-system" @scroll="scroll">
-    <vFileTree :files="files" @loadFile="loadFile"></vFileTree>
+    <vFileTree :files="project.files" @loadFile="loadFile"></vFileTree>
 
     <div class="menu" v-if="menu.show" :style="{left: menu.left + 'px', top: menu.top + 'px', width: menu.width + 'px'}">
       <div class="menu-item" v-for="item in menu.items" :key="item.name" :style="{height: menu.itemHeight + 'px'}" @click="handleFn(item.handle)">{{item.name}}</div>
     </div>
+
+    <Modal
+      width="200"
+      :title="inputDialog.title"
+      v-model="inputDialog.show"
+      @on-ok="inputDialog.confirmHandle">
+      <Input v-model="inputDialog.input"  style="width: 150px" />
+    </Modal>
   </div>
 </template>
 
 <script>
 import vFileTree from '@/components/v-filetree';
+import axios from 'axios';                                    // http协议库
 export default {
   components: {
     vFileTree
   },
   props: {
-    files: {
-      type: Array,
+    project: {
+      type: Object,
       default: () => []
+    },
+    host: {
+      type: String,
+      default: ''
     }
   },
   data () {
@@ -44,7 +57,15 @@ export default {
       },
       rightClickFile: null,
       scrollTop: 0,
-      scrollLeft: 0
+      scrollLeft: 0,
+
+      inputDialog: {
+        show: false,
+        title: '',
+        input: '',
+        confirmHandle: '',
+        cancelHandle: ''
+      }
     };
   },
   methods: {
@@ -52,23 +73,85 @@ export default {
       this.menu.show = false;
       this[fn]();
     },
+
+    // 文件系统基本操作
     createFolder () {
-      this.$emit('createFolder', this.rightClickFile.id);
+      this.inputDialog.show = true;
+      this.inputDialog.title = '请输入文件夹名';
+      this.inputDialog.confirmHandle = () => {
+        axios.post(`${this.host}/projects/createFolder`, {
+          projectId: this.project.projectId,
+          folderName: this.inputDialog.input,
+          fatherId: this.rightClickFile.id
+        }).then((data) => {
+          this.$emit('syncFS', data.data.files);
+        });
+      };
     },
     createFile () {
-      this.$emit('createFile', this.rightClickFile.id);
+      this.inputDialog.show = true;
+      this.inputDialog.title = '请输入文件夹名';
+      this.inputDialog.confirmHandle = () => {
+        axios.post(`${this.host}/projects/createFile`, {
+          projectId: this.project.projectId,
+          fileName: this.inputDialog.input,
+          fatherId: this.rightClickFile.id
+        }).then((data) => {
+          this.$emit('syncFS', data.data.files);
+        });
+      };
     },
     delete () {
-      if (this.rightClickFile.type === 0) this.$emit('deleteFolder', this.rightClickFile.id);
-      else if (this.rightClickFile.type === 1) this.$emit('deleteFile', this.rightClickFile.id);
+      if (this.rightClickFile.type === 0) {
+        axios.post(`${this.host}/projects/deleteFolder`, {
+          projectId: this.project.projectId,
+          folderId: this.rightClickFile.id
+        }).then((data) => {
+          this.$emit('syncFS', data.data.files);
+        });
+      } else if (this.rightClickFile.type === 1) {
+        axios.post(`${this.host}/projects/deleteFile`, {
+          projectId: this.project.projectId,
+          fileId: this.rightClickFile.id
+        }).then((data) => {
+          this.$emit('syncFS', data.data.files);
+        });
+      }
     },
     rename () {
-      if (this.rightClickFile.type === 0) this.$emit('renameFolder', this.rightClickFile.id);
-      else if (this.rightClickFile.type === 1) this.$emit('renameFile', this.rightClickFile.id);
+      if (this.rightClickFile.type === 0) {
+        this.inputDialog.show = true;
+        this.inputDialog.title = '请输入文件夹名';
+        this.inputDialog.confirmHandle = () => {
+          axios.post(`${this.host}/projects/renameFolder`, {
+            projectId: this.project.projectId,
+            folderId: this.rightClickFile.id,
+            folderName: this.inputDialog.input
+          }).then((data) => {
+            this.$emit('syncFS', data.data.files);
+          });
+        };
+      } else if (this.rightClickFile.type === 1) {
+        this.inputDialog.show = true;
+        this.inputDialog.title = '请输入文件名';
+        this.inputDialog.confirmHandle = () => {
+          axios.post(`${this.host}/projects/renameFile`, {
+            projectId: this.project.projectId,
+            fileId: this.rightClickFile.id,
+            fileName: this.inputDialog.input
+          }).then((data) => {
+            this.$emit('syncFS', data.data.files);
+          });
+        };
+      }
     },
+
+    // 加载指定文件
     loadFile (id) {
       this.$emit('loadFile', id);
     },
+
+    // 鼠标操作
     scroll (e) {
       this.scrollTop = e.target.scrollTop;
       this.scrollLeft = e.target.scrollLeft;

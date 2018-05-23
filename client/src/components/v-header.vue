@@ -15,10 +15,8 @@
     <div class="header-right">
       <div></div>
       <div class="login-form" v-if="!user.name">
-        <label>用户名</label>
-        <input v-model="username"/>
-        <label>密码</label>
-        <input v-model="password" type="password"/>
+        <label>用户名</label> <input v-model="username"/>
+        <label>密码</label> <input v-model="password" type="password"/>
         <label class="login-btn" @click="login">登陆</label>
         <label class="login-btn" @click="register">注册</label>
       </div>
@@ -47,6 +45,14 @@
         <Button type="error" @click="rejectInvite(item.projectId)">拒绝</Button>
       </div>
     </Modal>
+
+    <Modal
+      width="200"
+      :title="inputDialog.title"
+      v-model="inputDialog.show"
+      @on-ok="inputDialog.confirmHandle">
+      <Input v-model="inputDialog.input"  style="width: 150px" />
+    </Modal>
   </div>
 </template>
 <script>
@@ -59,16 +65,18 @@ import logoutIcon from './../assets/logout.png';
 import axios from 'axios';                                    // http协议库
 export default {
   props: {
-    selections: {
-      type: Array
-    },
     user: {
       type: Object,
       default: null
     },
-    project: {
-      type: Object,
-      default: null
+    host: {
+      type: String,
+      default: ''
+    }
+  },
+  computed: {
+    selections () {
+      return this.user.selfProjects ? this.user.selfProjects.concat(this.user.joinProjects) : [];
     }
   },
   data () {
@@ -79,35 +87,79 @@ export default {
       renameIcon,
       settingIcon,
       logoutIcon,
+
       username: '',
       password: '',
+
       currentProjectId: '',
       projectSetting: false,
       showNotification: false,
       inviteUsername: '',
-      host: 'http://localhost:3000'                     // 后端主机
+
+      inputDialog: {
+        show: false,
+        title: '',
+        input: '',
+        confirmHandle: '',
+        cancelHandle: ''
+      }
     };
   },
   methods: {
+    // 登陆注册                   登出
     login () {
       if (this.username && this.password) {
-        this.$emit('login', this.username, this.password);
+        axios.post(`${this.host}/users/login`, {
+          username: this.username,
+          password: this.password
+        }).then((res) => {
+          const data = res.data;
+          if (data.code === 0) this.$emit('updateUserInfo');
+        });
       }
     },
     register () {
       if (this.username && this.password) {
-        this.$emit('register', this.username, this.password);
+        axios.post(`${this.host}/users/register`, {
+          username: this.username,
+          password: this.password
+        }).then((res) => {
+          const data = res.data;
+          if (data.code === 0) this.$emit('updateUserInfo');
+        });
       }
     },
+
+    // 项目操作                   项目重命名、删除项目、管理参与者||退出项目
     createProject () {
-      this.$emit('createProject');
+      this.inputDialog.show = true;
+      this.inputDialog.title = '请输入项目名';
+      this.inputDialog.confirmHandle = () => {
+        if (this.inputDialog.input !== '') {
+          axios.post(`${this.host}/projects/create`, {
+            projectName: this.inputDialog.input
+          }).then((res) => {
+            const data = res.data;
+            console.log(data);
+            if (data.code === 0) this.$emit('updateUserInfo');
+          });
+        }
+      };
     },
     changeProject () {
       this.$emit('changeProject', this.currentProjectId);
     },
+
+    // 发送邀请和接受邀请
     inviteUser () {
       if (this.inviteUsername && this.inviteUsername !== '') {
-        this.$emit('inviteUser', this.inviteUsername);
+        axios.post(`${this.host}/projects/inviteUser`, {
+          projectId: this.currentProjectId,
+          username: this.inviteUsername
+        }).then((res) => {
+          const data = res.data;
+          if (data.code === 0) console.log(data);
+        });
       }
     },
     acceptInvite (projectId) {
@@ -115,7 +167,7 @@ export default {
         projectId: projectId
       }).then((res) => {
         const data = res.data;
-        console.log(data);
+        if (data.code === 0) this.$emit('updateUserInfo');
       });
     },
     rejectInvite (projectId) {
@@ -123,7 +175,7 @@ export default {
         projectId: projectId
       }).then((res) => {
         const data = res.data;
-        console.log(data);
+        if (data.code === 0) this.$emit('updateUserInfo');
       });
     }
   }
