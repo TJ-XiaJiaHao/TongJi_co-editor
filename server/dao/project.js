@@ -68,16 +68,44 @@ function drop (projectId, userId, callback) {
       const project = res.project;
       connectToMongo((db, closedb) => {
         const collection = db.collection('projects');
-        if (project.userId === userId || project.opUsers.indexOf(userId) > 0){
+        if (project.userId === userId || project.opUsers.filter((item) => item.id === userId).length !== 0){
           collection.remove({projectId: projectId}, (err, res) => {
             closedb();
             if (err) callback && callback(ERROR.REMOVE_FAIL);
-            else callback && callback({code: ERROR.SUCCESS.code, msg: '删除项目成功'});
+            else {
+              for (let i = 0; i < project.files.length; i++) removeFilesInMongo(project.projectId, project.files[i]);
+              removeProjectFromUser(project);
+              callback && callback({code: ERROR.SUCCESS.code, msg: '删除项目成功'});
+            }
           });
         } else {
           closedb();
           callback && callback(ERROR.PERMISSION_DENIED);
         }
+      });
+    }
+  });
+}
+
+function removeProjectFromUser(project) {
+  project.opUsers.push({id: project.userId});
+  const users = project.opUsers;
+  connectToMongo((db, closedb) => {
+    const collection = db.collection('users');
+    let finish = 0;
+    for (let i = 0; i < users.length; i++) {
+      collection.find({id: users[i].id}).toArray((err, res) => {
+        for(let i = 0; i < res[0].selfProjects.length; i++) {
+          if (res[0].selfProjects[i].projectId === project.projectId) { res[0].selfProjects.splice(i, 1); break; }
+        }
+        for(let i = 0; i < res[0].joinProjects.length; i++) {
+          if (res[0].joinProjects[i].projectId === project.projectId) { res[0].joinProjects.splice(i, 1); break; }
+        }
+        collection.updateMany({id: users[i].id}, {$set: {selfProjects: res[0].selfProjects, joinProjects: res[0].joinProjects}}, () => {
+          Doc.notifyUser(users[i].id, JSON.stringify({type: 'project', id: project.projectId, op: 'delete', project: project}));
+          finish++;
+          if(finish === users.length) closedb();
+        });
       });
     }
   });
@@ -91,16 +119,42 @@ function rename (projectId, userId, projectName, callback) {
       const project = res.project;
       connectToMongo((db, closedb) => {
         const collection = db.collection('projects');
-        if (project.userId === userId || project.opUsers.indexOf(userId) > 0) {
+        if (project.userId === userId || project.opUsers.filter((item) => item.id === userId).length !== 0) {
+          project.projectName = projectName;
           collection.updateMany({projectId: projectId},{$set:{projectName:projectName}}, (err, res) => {
             closedb();
             if (err) callback && callback(ERROR.UPDATE_FAIL);
-            else callback && callback({code: ERROR.SUCCESS.code, msg: '项目重命名成功'});
+            else {
+              updateProjectNameInUser(project);
+              callback && callback({code: ERROR.SUCCESS.code, msg: '项目重命名成功', project: project});
+            }
           });
         } else {
           closedb();
           callback && callback(ERROR.PERMISSION_DENIED);
         }
+      });
+    }
+  });
+}
+
+function updateProjectNameInUser (project) {
+  project.opUsers.push({id: project.userId});
+  const users = project.opUsers;
+  connectToMongo((db, closedb) => {
+    const collection = db.collection('users');
+    let finish = 0;
+    for (let i = 0; i < users.length; i++) {
+      collection.find({id: users[i].id}).toArray((err, res) => {
+        const selfProject = res[0].selfProjects.filter((item) => item.projectId === project.projectId)[0];
+        const joinProject = res[0].joinProjects.filter((item) => item.projectId === project.projectId)[0];
+        if(selfProject)selfProject.projectName = project.projectName;
+        if(joinProject)joinProject.projectName = project.projectName;
+        collection.updateMany({id: users[i].id}, {$set: {selfProjects: res[0].selfProjects, joinProjects: res[0].joinProjects}}, () => {
+          Doc.notifyUser(users[i].id, JSON.stringify({type: 'project', id: project.projectId, op: 'update', project: project}));
+          finish++;
+          if(finish === users.length) closedb();
+        });
       });
     }
   });
@@ -203,7 +257,6 @@ function inviteUser (projectId, username, owername, callback) {
       const project = res.project;
       connectToMongo((db, closedb) => {
         const collection = db.collection('users');
-        console.log(project);
         collection.find({name: username}).toArray((err, res) => {
           if (err) {closedb(); callback && callback(ERROR.FIND_FAIL);}
           else if(res.length === 0) {closedb();callback && callback(ERROR.USER_NOT_EXIST);}

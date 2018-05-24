@@ -30,6 +30,7 @@ function initWS(server) {
     ws.on('message', function(msg) {
       if (JSON.parse(msg).type === 'fs') processFSSocket(ws, JSON.parse(msg));
       else if(JSON.parse(msg).type === 'user') processUserSocket(ws, JSON.parse(msg));
+      else if(JSON.parse(msg).type === 'project') processFSSocket(ws, JSON.parse(msg));
       else stream.push(JSON.parse(msg));
     });
 
@@ -67,7 +68,7 @@ function processFSSocket(ws, msg) {
       }
     }else if (msg.op === 'update') {
       for (let i = 0; i < fs.wss.length; i++) {
-        fs.wss[i].readyState === WebSocket.OPEN && fs.wss[i].send(JSON.stringify({type: 'fs', project: msg.project}));
+        fs.wss[i].readyState === WebSocket.OPEN && fs.wss[i].send(JSON.stringify({type: msg.type, project: msg.project}));
       }
     }
   } else {

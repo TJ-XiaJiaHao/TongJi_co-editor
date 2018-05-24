@@ -1,6 +1,6 @@
 <template>
   <div class="ace">
-    <vHeader :user="user" :host="host"
+    <vHeader :user="user" :host="host" :project="project"
              @changeProject="loadProject"
              @updateUserInfo="loadUserInfo"></vHeader>
     <div class="content">
@@ -80,6 +80,16 @@ export default {
     this.fsSocket.onmessage = (res) => {
       const data = JSON.parse(res.data);
       if (data.type === 'fs' && data.project && data.project.projectId === this.project.projectId) this.project = data.project;
+      else if (data.type === 'project' && data.project) {
+        if (data.op === 'update') {
+          const sProject = this.user.selfProjects.filter((item) => item.projectId === data.project.projectId)[0];
+          const jProject = this.user.joinProjects.filter((item) => item.projectId === data.project.projectId)[0];
+          if (sProject) sProject.projectName = data.project.projectName;
+          if (jProject) jProject.projectName = data.project.projectName;
+        } else if (data.op === 'delete') {
+          this.loadUserInfo();
+        }
+      }
       else if (data.type === 'notification') this.loadUserInfo();
     };
 
@@ -102,7 +112,6 @@ export default {
       if (files) this.project.files = files;
       this.fsSocket.send(JSON.stringify({type: 'fs', id: this.project.projectId, op: 'update', project: this.project}));
     },
-
     // 加载用户信息
     loadUserInfo () {
       axios.get(`${this.host}/users/getUserInfo`).then((res) => {

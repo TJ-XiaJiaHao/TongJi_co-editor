@@ -7,8 +7,8 @@
       </select>
       <div class="op-container">
         <img :src="addIcon" class="op-icon" @click="createProject"/>
-        <img :src="deleteIcon" class="op-icon"/>
-        <img :src="renameIcon" class="op-icon"/>
+        <img :src="deleteIcon" class="op-icon" @click="deleteProject"/>
+        <img :src="renameIcon" class="op-icon" @click="renameProject"/>
         <img :src="settingIcon" class="op-icon" @click="projectSetting = true"/>
       </div>
     </div>
@@ -28,10 +28,14 @@
 
     <Modal
       v-model="projectSetting"
-      title="Common Modal dialog box title">
+      title="管理参与者">
       <div>
         <Input v-model="inviteUsername" placeholder="用户名" style="width: 300px" />
         <Button type="primary" @click="inviteUser">邀请</Button>
+        <div v-for="user in project.opUsers" :key="user.id">
+          <label>{{user.name}}</label>
+          <Button type="error" @click="removeUser">移除</Button>
+        </div>
       </div>
     </Modal>
 
@@ -72,6 +76,9 @@ export default {
     host: {
       type: String,
       default: ''
+    },
+    project: {
+      type: Object
     }
   },
   computed: {
@@ -136,7 +143,7 @@ export default {
       }
     },
 
-    // 项目操作                   项目重命名、删除项目、管理参与者||退出项目
+    // 项目操作                   管理参与者||退出项目、下载、上传
     createProject () {
       this.inputDialog.show = true;
       this.inputDialog.title = '请输入项目名';
@@ -154,6 +161,26 @@ export default {
     },
     changeProject () {
       this.$emit('changeProject', this.currentProjectId);
+    },
+    renameProject () {
+      this.inputDialog.show = true;
+      this.inputDialog.title = '请输入项目名';
+      this.inputDialog.confirmHandle = () => {
+        if (this.inputDialog.input !== '') {
+          axios.post(`${this.host}/projects/rename`, {
+            projectId: this.currentProjectId,
+            projectName: this.inputDialog.input
+          }).then((res) => { });
+        }
+      };
+    },
+    deleteProject () {
+      axios.post(`${this.host}/projects/delete`, {
+        projectId: this.currentProjectId
+      }).then((res) => { });
+    },
+    removeUser () {
+
     },
 
     // 发送邀请和接受邀请

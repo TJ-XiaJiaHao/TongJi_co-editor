@@ -87,20 +87,22 @@ function getUserInfo (userId, callback) {
   connectToMongo((db, closedb) => {
     const collection = db.collection('users');
     collection.find({id: userId}).toArray((err, res) => {
-      closedb();
-      if (err) callback && callback(ERROR.FIND_FAIL);
-      else if (res.length === 0) callback && callback (ERROR.USER_NOT_EXIST);
-      else callback && callback({
+      if (err) {closedb();callback && callback(ERROR.FIND_FAIL);}
+      else if (res.length === 0) {closedb();callback && callback (ERROR.USER_NOT_EXIST);}
+      else {
+        const user = {
+          name: res[0].name,
+            id: res[0].id,
+          selfProjects: res[0].selfProjects,
+          joinProjects: res[0].joinProjects,
+          invitedProjects: res[0].invitedProjects,
+        };
+        callback && callback({
           code: ERROR.SUCCESS.code,
           msg: '',
-          user: {
-            name: res[0].name,
-            id: res[0].id,
-            selfProjects: res[0].selfProjects,
-            joinProjects: res[0].joinProjects,
-            invitedProjects: res[0].invitedProjects,
-          }
+          user: user
         });
+      }
     });
   });
 }
