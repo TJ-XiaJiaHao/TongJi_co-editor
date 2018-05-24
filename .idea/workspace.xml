@@ -28,7 +28,7 @@
       <file leaf-file-name="Ace.vue" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/client/src/components/Ace.vue">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="209">
+            <state relative-caret-position="1691">
               <caret line="89" column="30" lean-forward="true" selection-start-line="89" selection-start-column="30" selection-end-line="89" selection-end-column="30" />
               <folding>
                 <element signature="e#936#967#0" expanded="true" />
@@ -47,49 +47,50 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="v-filesystem.vue" pinned="false" current-in-tab="false">
+      <file leaf-file-name="v-filesystem.vue" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/client/src/components/v-filesystem.vue">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="358">
-              <caret line="120" column="14" lean-forward="false" selection-start-line="120" selection-start-column="14" selection-end-line="120" selection-end-column="14" />
+            <state relative-caret-position="95">
+              <caret line="5" column="20" lean-forward="true" selection-start-line="5" selection-start-column="20" selection-end-line="5" selection-end-column="20" />
               <folding>
                 <element signature="n#style#0;n#Input#0;n#Modal#0;n#div#0;n#template#0;n#!!top" expanded="true" />
-                <element signature="e#729#777#0" expanded="true" />
-                <element signature="e#1078#1465#0" expanded="false" />
-                <element signature="e#1556#1676#0" expanded="false" />
-                <element signature="e#1720#1775#0" expanded="false" />
-                <element signature="e#1814#2237#0" expanded="false" />
-                <element signature="e#2257#2676#0" expanded="false" />
-                <element signature="e#2692#3270#0" expanded="false" />
-                <element signature="e#3286#4265#0" expanded="false" />
-                <element signature="e#4300#4341#0" expanded="false" />
-                <element signature="e#4371#4466#0" expanded="false" />
-                <element signature="e#4486#4523#0" expanded="false" />
-                <element signature="e#4544#5624#0" expanded="false" />
-                <marker date="1527082684410" expanded="true" signature="6094:6127" ph="{...}" />
+                <element signature="e#765#813#0" expanded="true" />
+                <element signature="e#1592#1712#0" expanded="false" />
+                <element signature="e#1756#1811#0" expanded="false" />
+                <element signature="e#1850#2273#0" expanded="false" />
+                <element signature="e#2293#2712#0" expanded="false" />
+                <element signature="e#2728#3306#0" expanded="false" />
+                <element signature="e#3322#4301#0" expanded="false" />
+                <element signature="e#4336#4377#0" expanded="false" />
+                <element signature="e#4407#4502#0" expanded="false" />
+                <element signature="e#4522#4559#0" expanded="false" />
+                <element signature="e#4580#5660#0" expanded="false" />
+                <marker date="1527143465714" expanded="true" signature="6110:6143" ph="{...}" />
               </folding>
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="v-header.vue" pinned="false" current-in-tab="true">
+      <file leaf-file-name="v-header.vue" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/client/src/components/v-header.vue">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="114">
-              <caret line="145" column="30" lean-forward="false" selection-start-line="145" selection-start-column="30" selection-end-line="145" selection-end-column="30" />
+            <state relative-caret-position="173">
+              <caret line="151" column="30" lean-forward="false" selection-start-line="151" selection-start-column="30" selection-end-line="151" selection-end-column="30" />
               <folding>
                 <element signature="n#style#0;n#Input#0;n#div#0;n#Modal#0;n#div#0;n#template#0;n#!!top" expanded="true" />
                 <element signature="n#style#0;n#Input#0;n#Modal#2;n#div#0;n#template#0;n#!!top" expanded="true" />
-                <element signature="e#2428#2470#0" expanded="true" />
-                <element signature="e#3625#3935#0" expanded="false" />
-                <element signature="e#3951#4120#0" expanded="false" />
-                <element signature="e#4138#4451#0" expanded="false" />
-                <element signature="e#4523#4993#0" expanded="false" />
-                <element signature="e#5016#5081#0" expanded="false" />
-                <element signature="e#5104#5481#0" expanded="false" />
-                <element signature="e#5698#6039#0" expanded="false" />
-                <element signature="e#6070#6285#0" expanded="false" />
-                <element signature="e#6316#6531#0" expanded="false" />
+                <element signature="e#2533#2575#0" expanded="true" />
+                <element signature="e#3862#4172#0" expanded="false" />
+                <element signature="e#4188#4357#0" expanded="false" />
+                <element signature="e#4375#4688#0" expanded="false" />
+                <element signature="e#4748#5218#0" expanded="false" />
+                <element signature="e#5241#5306#0" expanded="false" />
+                <element signature="e#5329#5706#0" expanded="false" />
+                <element signature="e#5729#5857#0" expanded="false" />
+                <element signature="e#5883#6039#0" expanded="false" />
+                <element signature="e#6077#6418#0" expanded="false" />
+                <element signature="e#6449#6664#0" expanded="false" />
+                <element signature="e#6695#6910#0" expanded="false" />
               </folding>
             </state>
           </provider>
@@ -98,8 +99,8 @@
       <file leaf-file-name="projects.js" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/server/routes/projects.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="172">
-              <caret line="27" column="17" lean-forward="false" selection-start-line="27" selection-start-column="17" selection-end-line="27" selection-end-column="17" />
+            <state relative-caret-position="282">
+              <caret line="116" column="3" lean-forward="true" selection-start-line="116" selection-start-column="3" selection-end-line="116" selection-end-column="3" />
               <folding />
             </state>
           </provider>
@@ -108,8 +109,8 @@
       <file leaf-file-name="user.js" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/server/dao/user.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="304">
-              <caret line="88" column="41" lean-forward="false" selection-start-line="88" selection-start-column="34" selection-end-line="88" selection-end-column="41" />
+            <state relative-caret-position="285">
+              <caret line="120" column="30" lean-forward="false" selection-start-line="120" selection-start-column="30" selection-end-line="120" selection-end-column="30" />
               <folding>
                 <element signature="n#!!block;n#register#0" expanded="false" />
                 <element signature="n#!!block;n#login#0" expanded="false" />
@@ -141,11 +142,12 @@
       <file leaf-file-name="project.js" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/server/dao/project.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="155">
-              <caret line="98" column="114" lean-forward="true" selection-start-line="98" selection-start-column="114" selection-end-line="98" selection-end-column="114" />
+            <state relative-caret-position="385">
+              <caret line="408" column="12" lean-forward="false" selection-start-line="408" selection-start-column="12" selection-end-line="408" selection-end-column="12" />
               <folding>
                 <element signature="n#!!block;n#create#0" expanded="false" />
                 <element signature="n#!!block;n#rename#0" expanded="false" />
+                <element signature="n#!!block;n#updateProjectNameInUser#0" expanded="false" />
                 <element signature="n#!!block;n#get#0" expanded="false" />
                 <element signature="n#!!block;n#createFile#0" expanded="false" />
                 <element signature="n#!!block;n#renameFile#0" expanded="false" />
@@ -154,6 +156,8 @@
                 <element signature="n#!!block;n#insertProjectToUser#0" expanded="false" />
                 <element signature="n#!!block;n#sortFiles#0" expanded="false" />
                 <element signature="n#!!block;n#addToFiles#0" expanded="false" />
+                <element signature="n#!!block;n#removeFromFiles#0" expanded="false" />
+                <element signature="n#!!block;n#removeFilesInMongo#0" expanded="false" />
                 <element signature="n#!!block;n#renameInFiles#0" expanded="false" />
               </folding>
             </state>
@@ -164,7 +168,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>isEditorLoaded</find>
       <find>lockEditor</find>
       <find>console.log</find>
       <find>ile</find>
@@ -194,6 +197,7 @@
       <find>console</find>
       <find>notify</find>
       <find>removeFilesInMongo</find>
+      <find>removeProjectFromUser</find>
     </findStrings>
     <dirStrings>
       <dir>D:\Project\co-editor\client\src</dir>
@@ -230,14 +234,14 @@
         <option value="$PROJECT_DIR$/server/model/ERROR.js" />
         <option value="$PROJECT_DIR$/server/routes/index.js" />
         <option value="$PROJECT_DIR$/client/src/main.js" />
-        <option value="$PROJECT_DIR$/server/routes/projects.js" />
-        <option value="$PROJECT_DIR$/client/src/components/v-filesystem.vue" />
         <option value="$PROJECT_DIR$/server/routes/users.js" />
         <option value="$PROJECT_DIR$/server/dao/user.js" />
         <option value="$PROJECT_DIR$/server/dao/doc.js" />
         <option value="$PROJECT_DIR$/client/src/components/Ace.vue" />
         <option value="$PROJECT_DIR$/server/dao/project.js" />
+        <option value="$PROJECT_DIR$/server/routes/projects.js" />
         <option value="$PROJECT_DIR$/client/src/components/v-header.vue" />
+        <option value="$PROJECT_DIR$/client/src/components/v-filesystem.vue" />
       </list>
     </option>
   </component>
@@ -446,10 +450,10 @@
     <property name="restartRequiresConfirmation" value="false" />
   </component>
   <component name="RecentsManager">
-    <key name="CopyFile.RECENT_KEYS">
+    <key name="MoveFile.RECENT_KEYS">
       <recent name="D:\Project\co-editor\client\src\assets" />
     </key>
-    <key name="MoveFile.RECENT_KEYS">
+    <key name="CopyFile.RECENT_KEYS">
       <recent name="D:\Project\co-editor\client\src\assets" />
     </key>
   </component>
@@ -598,12 +602,12 @@
       <workItem from="1526882810948" duration="12155000" />
       <workItem from="1526982297619" duration="6084000" />
       <workItem from="1527054959841" duration="17883000" />
-      <workItem from="1527135274810" duration="6548000" />
+      <workItem from="1527135274810" duration="8887000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="134132000" />
+    <option name="totallyTimeSpent" value="136471000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="-8" y="-8" width="1382" height="784" extended-state="6" />
@@ -613,7 +617,7 @@
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="true" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.38484398" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.14710252" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
@@ -635,7 +639,7 @@
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
-      <option name="time" value="17" />
+      <option name="time" value="18" />
     </breakpoint-manager>
     <watches-manager />
   </component>
@@ -647,6 +651,7 @@
           <folding>
             <element signature="n#!!block;n#create#0" expanded="false" />
             <element signature="n#!!block;n#rename#0" expanded="false" />
+            <element signature="n#!!block;n#updateProjectNameInUser#0" expanded="false" />
             <element signature="n#!!block;n#get#0" expanded="false" />
             <element signature="n#!!block;n#createFile#0" expanded="false" />
             <element signature="n#!!block;n#renameFile#0" expanded="false" />
@@ -655,6 +660,8 @@
             <element signature="n#!!block;n#insertProjectToUser#0" expanded="false" />
             <element signature="n#!!block;n#sortFiles#0" expanded="false" />
             <element signature="n#!!block;n#addToFiles#0" expanded="false" />
+            <element signature="n#!!block;n#removeFromFiles#0" expanded="false" />
+            <element signature="n#!!block;n#removeFilesInMongo#0" expanded="false" />
             <element signature="n#!!block;n#renameInFiles#0" expanded="false" />
           </folding>
         </state>
@@ -696,6 +703,7 @@
           <folding>
             <element signature="n#!!block;n#create#0" expanded="false" />
             <element signature="n#!!block;n#rename#0" expanded="false" />
+            <element signature="n#!!block;n#updateProjectNameInUser#0" expanded="false" />
             <element signature="n#!!block;n#get#0" expanded="false" />
             <element signature="n#!!block;n#createFile#0" expanded="false" />
             <element signature="n#!!block;n#renameFile#0" expanded="false" />
@@ -704,6 +712,8 @@
             <element signature="n#!!block;n#insertProjectToUser#0" expanded="false" />
             <element signature="n#!!block;n#sortFiles#0" expanded="false" />
             <element signature="n#!!block;n#addToFiles#0" expanded="false" />
+            <element signature="n#!!block;n#removeFromFiles#0" expanded="false" />
+            <element signature="n#!!block;n#removeFilesInMongo#0" expanded="false" />
             <element signature="n#!!block;n#renameInFiles#0" expanded="false" />
           </folding>
         </state>
@@ -929,11 +939,22 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/server/routes/users.js">
+    <entry file="file://$PROJECT_DIR$/server/dao/doc.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="19">
-          <caret line="25" column="63" lean-forward="false" selection-start-line="25" selection-start-column="63" selection-end-line="25" selection-end-column="63" />
+        <state relative-caret-position="1235">
+          <caret line="65" column="16" lean-forward="true" selection-start-line="65" selection-start-column="16" selection-end-line="65" selection-end-column="16" />
           <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/server/dao/user.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="285">
+          <caret line="120" column="30" lean-forward="false" selection-start-line="120" selection-start-column="30" selection-end-line="120" selection-end-column="30" />
+          <folding>
+            <element signature="n#!!block;n#register#0" expanded="false" />
+            <element signature="n#!!block;n#login#0" expanded="false" />
+          </folding>
         </state>
       </provider>
     </entry>
@@ -945,59 +966,48 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/server/dao/user.js">
+    <entry file="file://$PROJECT_DIR$/server/routes/users.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="304">
-          <caret line="88" column="41" lean-forward="false" selection-start-line="88" selection-start-column="34" selection-end-line="88" selection-end-column="41" />
-          <folding>
-            <element signature="n#!!block;n#register#0" expanded="false" />
-            <element signature="n#!!block;n#login#0" expanded="false" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/client/src/components/v-filesystem.vue">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="358">
-          <caret line="120" column="14" lean-forward="false" selection-start-line="120" selection-start-column="14" selection-end-line="120" selection-end-column="14" />
-          <folding>
-            <element signature="n#style#0;n#Input#0;n#Modal#0;n#div#0;n#template#0;n#!!top" expanded="true" />
-            <element signature="e#729#777#0" expanded="true" />
-            <element signature="e#1078#1465#0" expanded="false" />
-            <element signature="e#1556#1676#0" expanded="false" />
-            <element signature="e#1720#1775#0" expanded="false" />
-            <element signature="e#1814#2237#0" expanded="false" />
-            <element signature="e#2257#2676#0" expanded="false" />
-            <element signature="e#2692#3270#0" expanded="false" />
-            <element signature="e#3286#4265#0" expanded="false" />
-            <element signature="e#4300#4341#0" expanded="false" />
-            <element signature="e#4371#4466#0" expanded="false" />
-            <element signature="e#4486#4523#0" expanded="false" />
-            <element signature="e#4544#5624#0" expanded="false" />
-            <marker date="1527082684410" expanded="true" signature="6094:6127" ph="{...}" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/server/dao/doc.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1235">
-          <caret line="65" column="16" lean-forward="true" selection-start-line="65" selection-start-column="16" selection-end-line="65" selection-end-column="16" />
+        <state relative-caret-position="19">
+          <caret line="25" column="63" lean-forward="false" selection-start-line="25" selection-start-column="63" selection-end-line="25" selection-end-column="63" />
           <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/server/dao/project.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="385">
+          <caret line="408" column="12" lean-forward="false" selection-start-line="408" selection-start-column="12" selection-end-line="408" selection-end-column="12" />
+          <folding>
+            <element signature="n#!!block;n#create#0" expanded="false" />
+            <element signature="n#!!block;n#rename#0" expanded="false" />
+            <element signature="n#!!block;n#updateProjectNameInUser#0" expanded="false" />
+            <element signature="n#!!block;n#get#0" expanded="false" />
+            <element signature="n#!!block;n#createFile#0" expanded="false" />
+            <element signature="n#!!block;n#renameFile#0" expanded="false" />
+            <element signature="n#!!block;n#removeFile#0" expanded="false" />
+            <element signature="n#!!block;n#inviteUser#0" expanded="false" />
+            <element signature="n#!!block;n#insertProjectToUser#0" expanded="false" />
+            <element signature="n#!!block;n#sortFiles#0" expanded="false" />
+            <element signature="n#!!block;n#addToFiles#0" expanded="false" />
+            <element signature="n#!!block;n#removeFromFiles#0" expanded="false" />
+            <element signature="n#!!block;n#removeFilesInMongo#0" expanded="false" />
+            <element signature="n#!!block;n#renameInFiles#0" expanded="false" />
+          </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/server/routes/projects.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="172">
-          <caret line="27" column="17" lean-forward="false" selection-start-line="27" selection-start-column="17" selection-end-line="27" selection-end-column="17" />
+        <state relative-caret-position="282">
+          <caret line="116" column="3" lean-forward="true" selection-start-line="116" selection-start-column="3" selection-end-line="116" selection-end-column="3" />
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/client/src/components/Ace.vue">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="209">
+        <state relative-caret-position="1691">
           <caret line="89" column="30" lean-forward="true" selection-start-line="89" selection-start-column="30" selection-end-line="89" selection-end-column="30" />
           <folding>
             <element signature="e#936#967#0" expanded="true" />
@@ -1015,43 +1025,47 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/server/dao/project.js">
+    <entry file="file://$PROJECT_DIR$/client/src/components/v-header.vue">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="155">
-          <caret line="98" column="114" lean-forward="true" selection-start-line="98" selection-start-column="114" selection-end-line="98" selection-end-column="114" />
+        <state relative-caret-position="173">
+          <caret line="151" column="30" lean-forward="false" selection-start-line="151" selection-start-column="30" selection-end-line="151" selection-end-column="30" />
           <folding>
-            <element signature="n#!!block;n#create#0" expanded="false" />
-            <element signature="n#!!block;n#rename#0" expanded="false" />
-            <element signature="n#!!block;n#get#0" expanded="false" />
-            <element signature="n#!!block;n#createFile#0" expanded="false" />
-            <element signature="n#!!block;n#renameFile#0" expanded="false" />
-            <element signature="n#!!block;n#removeFile#0" expanded="false" />
-            <element signature="n#!!block;n#inviteUser#0" expanded="false" />
-            <element signature="n#!!block;n#insertProjectToUser#0" expanded="false" />
-            <element signature="n#!!block;n#sortFiles#0" expanded="false" />
-            <element signature="n#!!block;n#addToFiles#0" expanded="false" />
-            <element signature="n#!!block;n#renameInFiles#0" expanded="false" />
+            <element signature="n#style#0;n#Input#0;n#div#0;n#Modal#0;n#div#0;n#template#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#Input#0;n#Modal#2;n#div#0;n#template#0;n#!!top" expanded="true" />
+            <element signature="e#2533#2575#0" expanded="true" />
+            <element signature="e#3862#4172#0" expanded="false" />
+            <element signature="e#4188#4357#0" expanded="false" />
+            <element signature="e#4375#4688#0" expanded="false" />
+            <element signature="e#4748#5218#0" expanded="false" />
+            <element signature="e#5241#5306#0" expanded="false" />
+            <element signature="e#5329#5706#0" expanded="false" />
+            <element signature="e#5729#5857#0" expanded="false" />
+            <element signature="e#5883#6039#0" expanded="false" />
+            <element signature="e#6077#6418#0" expanded="false" />
+            <element signature="e#6449#6664#0" expanded="false" />
+            <element signature="e#6695#6910#0" expanded="false" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/client/src/components/v-header.vue">
+    <entry file="file://$PROJECT_DIR$/client/src/components/v-filesystem.vue">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="114">
-          <caret line="145" column="30" lean-forward="false" selection-start-line="145" selection-start-column="30" selection-end-line="145" selection-end-column="30" />
+        <state relative-caret-position="95">
+          <caret line="5" column="20" lean-forward="true" selection-start-line="5" selection-start-column="20" selection-end-line="5" selection-end-column="20" />
           <folding>
-            <element signature="n#style#0;n#Input#0;n#div#0;n#Modal#0;n#div#0;n#template#0;n#!!top" expanded="true" />
-            <element signature="n#style#0;n#Input#0;n#Modal#2;n#div#0;n#template#0;n#!!top" expanded="true" />
-            <element signature="e#2428#2470#0" expanded="true" />
-            <element signature="e#3625#3935#0" expanded="false" />
-            <element signature="e#3951#4120#0" expanded="false" />
-            <element signature="e#4138#4451#0" expanded="false" />
-            <element signature="e#4523#4993#0" expanded="false" />
-            <element signature="e#5016#5081#0" expanded="false" />
-            <element signature="e#5104#5481#0" expanded="false" />
-            <element signature="e#5698#6039#0" expanded="false" />
-            <element signature="e#6070#6285#0" expanded="false" />
-            <element signature="e#6316#6531#0" expanded="false" />
+            <element signature="n#style#0;n#Input#0;n#Modal#0;n#div#0;n#template#0;n#!!top" expanded="true" />
+            <element signature="e#765#813#0" expanded="true" />
+            <element signature="e#1592#1712#0" expanded="false" />
+            <element signature="e#1756#1811#0" expanded="false" />
+            <element signature="e#1850#2273#0" expanded="false" />
+            <element signature="e#2293#2712#0" expanded="false" />
+            <element signature="e#2728#3306#0" expanded="false" />
+            <element signature="e#3322#4301#0" expanded="false" />
+            <element signature="e#4336#4377#0" expanded="false" />
+            <element signature="e#4407#4502#0" expanded="false" />
+            <element signature="e#4522#4559#0" expanded="false" />
+            <element signature="e#4580#5660#0" expanded="false" />
+            <marker date="1527143465714" expanded="true" signature="6110:6143" ph="{...}" />
           </folding>
         </state>
       </provider>

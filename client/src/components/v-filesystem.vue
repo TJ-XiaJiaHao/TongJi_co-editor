@@ -3,7 +3,7 @@
     <vFileTree :files="project.files" @loadFile="loadFile"></vFileTree>
 
     <div class="menu" v-if="menu.show" :style="{left: menu.left + 'px', top: menu.top + 'px', width: menu.width + 'px'}">
-      <div class="menu-item" v-for="item in menu.items" :key="item.name" :style="{height: menu.itemHeight + 'px'}" @click="handleFn(item.handle)">{{item.name}}</div>
+      <div class="menu-item" v-for="item in menu.items" :key="item.name" :style="{height: menu.itemHeight + 'px', lineHeight: menu.itemHeight + 'px'}" @click="handleFn(item.handle)">{{item.name}}</div>
     </div>
 
     <Modal
@@ -40,7 +40,7 @@ export default {
         top: 0,
         left: 0,
         width: 100,
-        itemHeight: 20,
+        itemHeight: 25,
         items: [{
           name: '新建文件夹',
           handle: 'createFolder'
@@ -200,7 +200,6 @@ export default {
 
 .menu-item {
   border: 1px solid rgb(81, 81, 81);
-  padding: 3px 0px;
   font-size: 14px;
   cursor: default;
 }

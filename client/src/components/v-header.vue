@@ -9,7 +9,8 @@
         <img :src="addIcon" class="op-icon" @click="createProject"/>
         <img :src="deleteIcon" class="op-icon" @click="deleteProject"/>
         <img :src="renameIcon" class="op-icon" @click="renameProject"/>
-        <img :src="settingIcon" class="op-icon" @click="projectSetting = true"/>
+        <img :src="settingIcon" class="op-icon" @click="projectSetting = true" v-if="isRoot"/>
+        <img :src="outIcon" class="op-icon" @click="removeUser(user.id)" v-else/>
       </div>
     </div>
     <div class="header-right">
@@ -34,7 +35,7 @@
         <Button type="primary" @click="inviteUser">邀请</Button>
         <div v-for="user in project.opUsers" :key="user.id">
           <label>{{user.name}}</label>
-          <Button type="error" @click="removeUser">移除</Button>
+          <Button type="error" @click="removeUser(user.id)">移除</Button>
         </div>
       </div>
     </Modal>
@@ -66,6 +67,7 @@ import projectIcon from './../assets/project.png';
 import renameIcon from './../assets/rename.png';
 import settingIcon from './../assets/setting.png';
 import logoutIcon from './../assets/logout.png';
+import outIcon from './../assets/out.png';
 import axios from 'axios';                                    // http协议库
 export default {
   props: {
@@ -84,6 +86,9 @@ export default {
   computed: {
     selections () {
       return this.user.selfProjects ? this.user.selfProjects.concat(this.user.joinProjects) : [];
+    },
+    isRoot () {
+      return this.project.userId === this.user.id;
     }
   },
   data () {
@@ -94,6 +99,7 @@ export default {
       renameIcon,
       settingIcon,
       logoutIcon,
+      outIcon,
 
       username: '',
       password: '',
@@ -143,7 +149,7 @@ export default {
       }
     },
 
-    // 项目操作                   管理参与者||退出项目、下载、上传
+    // 项目操作                   下载、上传
     createProject () {
       this.inputDialog.show = true;
       this.inputDialog.title = '请输入项目名';
@@ -179,8 +185,11 @@ export default {
         projectId: this.currentProjectId
       }).then((res) => { });
     },
-    removeUser () {
-
+    removeUser (userId) {
+      axios.post(`${this.host}/projects/removeUser`, {
+        projectId: this.currentProjectId,
+        userId: userId
+      }).then((res) => { });
     },
 
     // 发送邀请和接受邀请

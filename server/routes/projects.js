@@ -116,4 +116,12 @@ router.post('/inviteUser', (req, res) => {
   });
 });
 
+router.post('/removeUser', (req, res) => {
+  const projectId = req.body.projectId;
+  const userId = req.body.userId;
+  if(req.session.user === null) res.json(ERROR.USER_NOT_LOGIN);
+  else if(!projectId || !userId) res.json(ERROR.ARGUMENTS_ERROR);
+  else Project.removeUser(projectId, userId, (data) => { res.json(data); });
+});
+
 module.exports = router;

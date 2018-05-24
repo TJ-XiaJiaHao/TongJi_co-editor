@@ -87,9 +87,9 @@ function drop (projectId, userId, callback) {
   });
 }
 
-function removeProjectFromUser(project) {
+function removeProjectFromUser(project, userId) {
   project.opUsers.push({id: project.userId});
-  const users = project.opUsers;
+  const users = userId ? [{id: userId}] : project.opUsers;
   connectToMongo((db, closedb) => {
     const collection = db.collection('users');
     let finish = 0;
@@ -250,6 +250,7 @@ function removeFile (projectId, fileId, callback) {
   });
 }
 
+// 邀请用户
 function inviteUser (projectId, username, owername, callback) {
   get(projectId, (res) => {
     if (!res.project) callback && callback(ERROR.PROJECT_NOT_EXIST);
@@ -275,6 +276,29 @@ function inviteUser (projectId, username, owername, callback) {
               if (err) callback && callback(ERROR.UPDATE_FAIL);
               else callback && callback({code: ERROR.SUCCESS.code, msg: '邀请成功', userId: toUserId});
             });
+          }
+        });
+      });
+    }
+  });
+}
+
+// 移除用户
+function removeUser (projectId, userId, callback) {
+  get(projectId, (res) => {
+    if (!res.project) callback && callback(ERROR.PROJECT_NOT_EXIST);
+    else {
+      const project = res.project;
+      connectToMongo((db, closedb) => {
+        const collection = db.collection('projects');
+        for (let i = 0; i < project.opUsers.length; i++) {
+          if (project.opUsers[i].id === userId) { project.opUsers.splice(i, 1); break; }
+        }
+        collection.updateMany({projectId: projectId}, {$set: {opUsers: project.opUsers}}, (err, res) => {
+          closedb();
+          if (err) callback && callback(ERROR.UPDATE_FAIL);
+          else {
+            removeProjectFromUser(project, userId);
           }
         });
       });
@@ -381,5 +405,6 @@ module.exports = {
   createFile,
   removeFile,
   renameFile,
-  inviteUser
+  inviteUser,
+  removeUser
 };
