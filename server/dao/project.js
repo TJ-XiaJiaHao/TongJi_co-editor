@@ -2,6 +2,7 @@ const MongoClient = require('mongodb').MongoClient;                   //引入mo
 const DB_CONN_STR = 'mongodb://115.159.215.48:27017/COEDITOR';        //连接字符串
 const uuid = require('node-uuid');
 const ERROR = require('../model/ERROR');    // 错误编码
+const Socket = require('./sokcet');
 const Doc = require('./doc');
 
 function connectToMongo (callback) {
@@ -102,7 +103,7 @@ function removeProjectFromUser(project, userId) {
           if (res[0].joinProjects[i].projectId === project.projectId) { res[0].joinProjects.splice(i, 1); break; }
         }
         collection.updateMany({id: users[i].id}, {$set: {selfProjects: res[0].selfProjects, joinProjects: res[0].joinProjects}}, () => {
-          Doc.notifyUser(users[i].id, JSON.stringify({type: 'project', id: project.projectId, op: 'delete', project: project}));
+          Socket.notifyUser(users[i].id, JSON.stringify({type: 'project', op: 'delete', project: project}));
           finish++;
           if(finish === users.length) closedb();
         });
@@ -151,7 +152,7 @@ function updateProjectNameInUser (project) {
         if(selfProject)selfProject.projectName = project.projectName;
         if(joinProject)joinProject.projectName = project.projectName;
         collection.updateMany({id: users[i].id}, {$set: {selfProjects: res[0].selfProjects, joinProjects: res[0].joinProjects}}, () => {
-          Doc.notifyUser(users[i].id, JSON.stringify({type: 'project', id: project.projectId, op: 'update', project: project}));
+          Socket.notifyUser(users[i].id, JSON.stringify({type: 'project', op: 'update', project: project}));
           finish++;
           if(finish === users.length) closedb();
         });
@@ -181,6 +182,7 @@ function createFile (projectId, fileName, type, fatherId, callback) {
   get(projectId, (res) => {
     if (!res.project) callback && callback(ERROR.PROJECT_NOT_EXIST);
     else {
+      const project = res.project;
       const projectFiles = res.project.files.concat();
       const file = type === 0 ? new Folder(fileName) : new File(fileName);
       const canAdd = addToFiles(projectFiles, file, fatherId);
@@ -192,11 +194,17 @@ function createFile (projectId, fileName, type, fatherId, callback) {
             closedb();
             if (err) callback && callback(ERROR.UPDATE_FAIL);
             else if(type === 1){
+              project.files = projectFiles;
+              Socket.updateProject(projectId, project);
               Doc.create(projectId, file.id, (data) => {
                 data.files = projectFiles;
                 callback && callback(data);
               });
-            } else callback && callback ({code: ERROR.SUCCESS.code, msg: '文件夹创建成功', files: projectFiles});
+            } else {
+              project.files = projectFiles;
+              Socket.updateProject(projectId, project);
+              callback && callback ({code: ERROR.SUCCESS.code, msg: '文件夹创建成功', files: projectFiles});
+            }
           });
         });
       }
@@ -209,6 +217,7 @@ function renameFile (projectId, fileId, name, callback) {
   get(projectId, (res) => {
     if (!res.project) callback && callback(ERROR.PROJECT_NOT_EXIST);
     else {
+      const project = res.project;
       const projectFiles = res.project.files.concat();
       const canRename = renameInFiles(projectFiles, fileId, name);
       if (!canRename) callback && callback(ERROR.UPDATE_FAIL);
@@ -218,7 +227,11 @@ function renameFile (projectId, fileId, name, callback) {
           collection.updateMany({projectId: projectId}, {$set: {files: projectFiles}}, (err, res) => {
             closedb();
             if (err) callback && callback(ERROR.UPDATE_FAIL);
-            else callback && callback({code: ERROR.SUCCESS.code, msg: '文件重命名成功', files: projectFiles});
+            else {
+              project.files = projectFiles;
+              Socket.updateProject(projectId, project);
+              callback && callback({code: ERROR.SUCCESS.code, msg: '文件重命名成功', files: projectFiles});
+            }
           });
         });
       }
@@ -231,6 +244,7 @@ function removeFile (projectId, fileId, callback) {
   get(projectId, (res) => {
     if (!res.project) callback && callback(ERROR.PROJECT_NOT_EXIST);
     else {
+      const project = res.project;
       const projectFiles = res.project.files.concat();
       const canRemove = removeFromFiles(projectId, projectFiles, fileId);
       if (!canRemove) callback && callback(ERROR.UPDATE_FAIL);
@@ -241,6 +255,8 @@ function removeFile (projectId, fileId, callback) {
             closedb();
             if (err) callback && callback(ERROR.UPDATE_FAIL);
             else {
+              project.files = projectFiles;
+              Socket.updateProject(projectId, project);
               callback && callback({code: ERROR.SUCCESS.code, msg: '删除文件成功', files: projectFiles});
             }
           });
@@ -274,7 +290,10 @@ function inviteUser (projectId, username, owername, callback) {
             collection.updateMany({name: username}, {$set: {invitedProjects: nInvitedProjects}}, (err) => {
               closedb();
               if (err) callback && callback(ERROR.UPDATE_FAIL);
-              else callback && callback({code: ERROR.SUCCESS.code, msg: '邀请成功', userId: toUserId});
+              else {
+                Socket.notifyUser(toUserId, JSON.stringify({type: 'notification', invitedProjects:nInvitedProjects}));
+                callback && callback({code: ERROR.SUCCESS.code, msg: '邀请成功'});
+              }
             });
           }
         });

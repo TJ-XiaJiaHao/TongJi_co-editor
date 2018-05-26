@@ -1,12 +1,11 @@
 <template>
   <div class="ace">
-    <vHeader :user="user" :host="host" :project="project"
+    <vHeader :user="user" :host="host" :project="project" :coUsers="coUsers"
              @changeProject="loadProject"
              @updateUserInfo="loadUserInfo"></vHeader>
     <div class="content">
       <div class="left">
-        <vFileSystem :project = "project" @loadFile="loadFile" :host="host"
-                     @syncFS="syncFS"></vFileSystem>
+        <vFileSystem :project = "project" @loadFile="loadFile" :host="host"></vFileSystem>
       </div>
       <div class="right">
         <editor class="editor"
@@ -52,8 +51,9 @@ export default {
         theme: 'monokai'
       },
       user: {},                                          // 用户信息
+      coUsers: [],                                         // 共同协作的用户
       host: 'http://localhost:3000',                     // 后端主机
-      fsSocket: null                                    // 文件系统socket
+      socket: null                                      // socket连接
     };
   },
 
@@ -72,25 +72,36 @@ export default {
 
     // sharedb初始化
     sharedb.types.register(otText.type);          // 注册text类型
-    const socket = new WebSocket('ws://localhost:3000/');
-    this.connection = new sharedb.Connection(socket);
+    const shareDBSocket = new WebSocket('ws://localhost:3000/');
+    this.connection = new sharedb.Connection(shareDBSocket);
 
-    // 文件系统socket初始化
-    this.fsSocket = new WebSocket('ws://localhost:3000/');
-    this.fsSocket.onmessage = (res) => {
+    // socket初始化
+    this.socket = new WebSocket('ws://localhost:3000/');
+    this.socket.onmessage = (res) => {
       const data = JSON.parse(res.data);
-      if (data.type === 'fs' && data.project && data.project.projectId === this.project.projectId) this.project = data.project;
-      else if (data.type === 'project' && data.project) {
+      if (data.type === 'project' && data.project) {
         if (data.op === 'update') {
           const sProject = this.user.selfProjects.filter((item) => item.projectId === data.project.projectId)[0];
           const jProject = this.user.joinProjects.filter((item) => item.projectId === data.project.projectId)[0];
           if (sProject) sProject.projectName = data.project.projectName;
           if (jProject) jProject.projectName = data.project.projectName;
+          this.project = data.project;
         } else if (data.op === 'delete') {
           this.loadUserInfo();
         }
-      }
-      else if (data.type === 'notification') this.loadUserInfo();
+      } else if (data.type === 'doc') {
+        if (data.op === 'out') {
+          for (let i = 0; i < this.coUsers.length; i++) {
+            if (this.coUsers[i].userId === data.userId) {
+              this.coUsers.splice(i, 1);
+              break;
+            }
+          }
+        } else if (data.op === 'join') {
+          const user = this.coUsers.filter((item) => item.userId === data.userId)[0];
+          if (!user) this.coUsers.push({userId: data.userId, userName: data.userName});
+        }
+      } else if (data.type === 'notification') this.loadUserInfo();
     };
 
     axios.defaults.withCredentials = true;            // 配置axios自动设置cookie
@@ -100,24 +111,17 @@ export default {
   methods: {
     // 加载项目内容
     loadProject (projectId) {
-      if (!this.project || this.project.projectId !== projectId) this.fsSocket.send(JSON.stringify({type: 'fs', id: this.project.projectId, op: 'close'}));
       axios.get(`${this.host}/projects/details?projectId=${projectId}`).then((data) => {
         this.project = data.data.project;
-        this.fsSocket.send(JSON.stringify({type: 'fs', id: this.project.projectId, op: 'init'}));
       });
     },
 
-    // 同步文件系统
-    syncFS (files) {
-      if (files) this.project.files = files;
-      this.fsSocket.send(JSON.stringify({type: 'fs', id: this.project.projectId, op: 'update', project: this.project}));
-    },
     // 加载用户信息
     loadUserInfo () {
       axios.get(`${this.host}/users/getUserInfo`).then((res) => {
         if (res.data.code === 0) {
           this.user = res.data.user;
-          this.fsSocket.send(JSON.stringify({type: 'user', id: this.user.id, op: 'init'}));
+          this.socket.send(JSON.stringify({type: 'connect', op: 'init', userId: this.user.id}));
         } else {
           this.user = {};
         }
@@ -187,6 +191,8 @@ export default {
       setTimeout(() => {
         this.editorConfig.content = nValue;
       }, 0);        // 防止两个文件初始内容一致导致无刷新
+      console.log(this.doc.id);
+      this.socket.send(JSON.stringify({type: 'doc', op: 'switch', userId: this.user.id, docId: this.doc.id, userName: this.user.name}));
       this.lockEditor();
     },
 

@@ -3,7 +3,7 @@ const express = require('express');         // express框架
 const url = require('url');                 // url模块
 const ERROR = require('../model/ERROR');    // 错误码
 const Project = require('../dao/project');  // 数据访问对象
-const Doc = require('../dao/doc');
+const Socket = require('../dao/sokcet');
 const router = express.Router();            // 路由
 
 router.get('/', (req, res) => {
@@ -43,7 +43,7 @@ router.get('/details', (req, res) => {
   const projectId =  url.parse(req.url, true).query.projectId;
   if(req.session.user === null) res.json(ERROR.USER_NOT_LOGIN);
   else if(!projectId ) res.json(ERROR.ARGUMENTS_ERROR);
-  else Project.get(projectId, (data) => { res.json(data); });
+  else Project.get(projectId, (data) => { if (data.code === ERROR.SUCCESS.code) Socket.switchProject(req.session.user.id, projectId); res.json(data); });
 });
 
 // 创建文件夹
@@ -111,7 +111,6 @@ router.post('/inviteUser', (req, res) => {
   if(req.session.user === null) res.json(ERROR.USER_NOT_LOGIN);
   else if(!projectId || !username) res.json(ERROR.ARGUMENTS_ERROR);
   else Project.inviteUser(projectId, username, ower, (data) => {
-    if (data.code === 0) Doc.notifyUser(data.userId, JSON.stringify({type: 'notification'}));
     res.json(data);
   });
 });

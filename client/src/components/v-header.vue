@@ -14,7 +14,11 @@
       </div>
     </div>
     <div class="header-right">
-      <div></div>
+      <div>
+        <span v-for="user in coUsers" :key = "user.userId">
+          {{user.userName}}
+        </span>
+      </div>
       <div class="login-form" v-if="!user.name">
         <label>用户名</label> <input v-model="username"/>
         <label>密码</label> <input v-model="password" type="password"/>
@@ -74,6 +78,9 @@ export default {
     user: {
       type: Object,
       default: null
+    },
+    coUsers: {
+      type: Array
     },
     host: {
       type: String,
