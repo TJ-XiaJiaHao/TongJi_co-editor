@@ -55,6 +55,7 @@ export default {
       },
       user: {},                                          // 用户信息
       coUsers: [],                                         // 共同协作的用户
+      // host: 'http://115.159.215.48:3000',                     // 后端主机
       host: 'http://localhost:3000',                     // 后端主机
       socket: null                                      // socket连接
     };
@@ -80,11 +81,11 @@ export default {
 
     // sharedb初始化
     sharedb.types.register(otText.type);          // 注册text类型
-    const shareDBSocket = new WebSocket('ws://localhost:3000/');
+    const shareDBSocket = new WebSocket('ws://115.159.215.48:3000/');
     this.connection = new sharedb.Connection(shareDBSocket);
 
     // socket初始化
-    this.socket = new WebSocket('ws://localhost:3000/');
+    this.socket = new WebSocket('ws://115.159.215.48:3000/');
     this.socket.onmessage = (res) => {
       const data = JSON.parse(res.data);
       if (data.type === 'project' && data.project) {

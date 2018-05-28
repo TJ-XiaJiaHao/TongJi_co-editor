@@ -9,6 +9,7 @@
         <img :src="addIcon" class="op-icon" @click="createProject"/>
         <img :src="deleteIcon" class="op-icon" @click="deleteProject"/>
         <img :src="renameIcon" class="op-icon" @click="renameProject"/>
+        <img :src="downloadIcon" class="op-icon" @click="downloadProject"/>
         <img :src="settingIcon" class="op-icon" @click="projectSetting = true" v-if="isRoot"/>
         <img :src="outIcon" class="op-icon" @click="removeUser(user.id)" v-else/>
       </div>
@@ -77,6 +78,7 @@ import renameIcon from './../assets/rename.png';
 import settingIcon from './../assets/setting.png';
 import logoutIcon from './../assets/logout.png';
 import outIcon from './../assets/out.png';
+import downloadIcon from './../assets/download.png';
 import axios from 'axios';                                    // http协议库
 export default {
   props: {
@@ -116,6 +118,8 @@ export default {
       settingIcon,
       logoutIcon,
       outIcon,
+      downloadIcon,
+
       colors: ['red', 'blue', 'orange'],
 
       username: '',
@@ -224,6 +228,9 @@ export default {
           } else this.showError('成员移除失败');
         });
       });
+    },
+    downloadProject () {
+      window.open(`${this.host}/download?projectId=${this.project.projectId}`);
     },
 
     // 发送邀请和接受邀请

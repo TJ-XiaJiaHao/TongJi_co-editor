@@ -4,6 +4,8 @@ const uuid = require('node-uuid');
 const ERROR = require('../model/ERROR');    // 错误编码
 const Socket = require('./sokcet');
 const Doc = require('./doc');
+const JSZip = require('jszip');
+const fs = require('fs');
 
 function connectToMongo (callback) {
   //使用客户端连接数据，并指定完成时的回调方法
@@ -110,6 +112,35 @@ function removeProjectFromUser(project, userId) {
       });
     }
   });
+}
+
+// 下载项目
+function download (projectId, callback) {
+  get(projectId, (res) => {
+    if(!res.project) callback && callback(ERROR.PROJECT_NOT_EXIST);
+    else {
+      const zip = new JSZip();
+      const project = res.project;
+      Doc.getDocsByCollectionName(projectId, (data) => {
+        const docs = data.docs;
+        addFilesToZip(zip, project.files, '', docs);
+        zip.generateAsync({type: 'string', base64: false, compression: 'DEFLATE'}).then((content) => {
+          callback && callback({ code: ERROR.SUCCESS.code, content: content, zipName: project.projectName });
+        });
+      });
+    }
+  });
+}
+
+function addFilesToZip (zip, files, path, docs) {
+  for( let i = 0; i < files.length; i++) {
+    if (files[i].children && files[i].children.length > 0)  addFilesToZip(zip, files[i].children, `${path}${files[i].name}/`, docs);
+    else if (files[i].children && files[i].children.length === 0) zip.folder(`${path}${files[i].name}`);
+    else {
+      const doc = docs.filter((item) => item.id === files[i].id)[0];
+      if (doc) zip.file(`${path}${files[i].name}`, doc.value);
+    }
+  }
 }
 
 // 项目重命名
@@ -439,6 +470,7 @@ module.exports = {
   create,
   drop,
   get,
+  download,
   rename,
   createFile,
   removeFile,
