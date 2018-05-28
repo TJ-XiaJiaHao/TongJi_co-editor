@@ -14,9 +14,11 @@
       </div>
     </div>
     <div class="header-right">
+      <div class="file-name"> {{title}} </div>
       <div>
-        <span v-for="user in coUsers" :key = "user.userId">
-          {{user.userName}}
+        <span v-for="(user, index) in coUsers" :key = "user.userId" class="co-users">
+          <span :style="{background: colors[index % colors.length]}" class="co-user-color"></span>
+          <span>{{user.userName}}</span>
         </span>
       </div>
       <div class="login-form" v-if="!user.name">
@@ -32,13 +34,14 @@
     </div>
 
     <Modal
+      width="350"
       v-model="projectSetting"
       title="管理参与者">
       <div>
-        <Input v-model="inviteUsername" placeholder="用户名" style="width: 300px" />
+        <Input v-model="inviteUsername" placeholder="用户名" style="width: 250px; margin-right: 5px;" />
         <Button type="primary" @click="inviteUser">邀请</Button>
         <div v-for="user in project.opUsers" :key="user.id">
-          <label>{{user.name}}</label>
+          <label style="width: 250px;display: inline-block;margin: 15px 5px 0 0">{{user.name}}</label>
           <Button type="error" @click="removeUser(user.id)">移除</Button>
         </div>
       </div>
@@ -46,10 +49,11 @@
 
     <Modal
       v-model="showNotification"
-      title="通知">
+      width="350"
+      :title="`${user.name}的通知`">
       <div v-for="item in user.invitedProjects" :key="item.projectId">
-        <label>{{item.projectName}}</label>
-        <label>{{item.username}}</label>
+        <label style="width: 90px;display: inline-block;margin: 15px 5px 0 0">{{item.projectName}}</label>
+        <label style="width: 90px;display: inline-block;margin: 15px 5px 0 0">{{item.username}}</label>
         <Button type="success" @click="acceptInvite(item.projectId)">接受</Button>
         <Button type="error" @click="rejectInvite(item.projectId)">拒绝</Button>
       </div>
@@ -60,7 +64,8 @@
       :title="inputDialog.title"
       v-model="inputDialog.show"
       @on-ok="inputDialog.confirmHandle">
-      <Input v-model="inputDialog.input"  style="width: 150px" />
+      <Input v-if="inputDialog.input !== null" v-model="inputDialog.input"  style="width: 150px" />
+      <p v-if="inputDialog.msg !== null">{{inputDialog.msg}}</p>
     </Modal>
   </div>
 </template>
@@ -88,6 +93,10 @@ export default {
     },
     project: {
       type: Object
+    },
+    title: {
+      type: String,
+      default: ''
     }
   },
   computed: {
@@ -107,6 +116,7 @@ export default {
       settingIcon,
       logoutIcon,
       outIcon,
+      colors: ['red', 'blue', 'orange'],
 
       username: '',
       password: '',
@@ -120,6 +130,7 @@ export default {
         show: false,
         title: '',
         input: '',
+        msg: null,
         confirmHandle: '',
         cancelHandle: ''
       }
@@ -134,7 +145,9 @@ export default {
           password: this.password
         }).then((res) => {
           const data = res.data;
+          console.log(data);
           if (data.code === 0) this.$emit('updateUserInfo');
+          else this.showError('登陆失败', '用户名或密码错误');
         });
       }
     },
@@ -142,6 +155,7 @@ export default {
       axios.post(`${this.host}/users/logout`).then((res) => {
         const data = res.data;
         if (data.code === 0) this.$emit('updateUserInfo');
+        else this.showError('登出失败', '');
       });
     },
     register () {
@@ -152,51 +166,64 @@ export default {
         }).then((res) => {
           const data = res.data;
           if (data.code === 0) this.$emit('updateUserInfo');
+          else this.showError('注册失败', data.msg);
         });
       }
     },
 
     // 项目操作                   下载、上传
     createProject () {
-      this.inputDialog.show = true;
-      this.inputDialog.title = '请输入项目名';
-      this.inputDialog.confirmHandle = () => {
+      this.showDialog('', null, '请输入项目名', () => {
         if (this.inputDialog.input !== '') {
           axios.post(`${this.host}/projects/create`, {
             projectName: this.inputDialog.input
           }).then((res) => {
             const data = res.data;
-            console.log(data);
-            if (data.code === 0) this.$emit('updateUserInfo');
+            if (data.code === 0) {
+              this.showSuccess('项目创建成功', '');
+              this.$emit('updateUserInfo');
+            } else this.showError('项目创建失败', data.msg);
           });
         }
-      };
+      });
     },
     changeProject () {
       this.$emit('changeProject', this.currentProjectId);
     },
     renameProject () {
-      this.inputDialog.show = true;
-      this.inputDialog.title = '请输入项目名';
-      this.inputDialog.confirmHandle = () => {
+      this.showDialog('', null, '请输入项目名', () => {
         if (this.inputDialog.input !== '') {
           axios.post(`${this.host}/projects/rename`, {
             projectId: this.currentProjectId,
             projectName: this.inputDialog.input
-          }).then((res) => { });
+          }).then((res) => {
+            if (res.data.code !== 0) this.showError('项目重命名失败');
+          });
         }
-      };
+      });
     },
     deleteProject () {
-      axios.post(`${this.host}/projects/delete`, {
-        projectId: this.currentProjectId
-      }).then((res) => { });
+      this.showDialog(null, '项目删除后将无法找回，是否确认删除？', '确认框', () => {
+        axios.post(`${this.host}/projects/delete`, {
+          projectId: this.currentProjectId
+        }).then((res) => {
+          if (res.data.code === 0) this.showSuccess('项目删除成功');
+          else this.showError('项目删除失败');
+        });
+      });
     },
     removeUser (userId) {
-      axios.post(`${this.host}/projects/removeUser`, {
-        projectId: this.currentProjectId,
-        userId: userId
-      }).then((res) => { });
+      this.showDialog(null, '是否确认退出？退出后只有管理员有权限邀请！', '确认框', () => {
+        axios.post(`${this.host}/projects/removeUser`, {
+          projectId: this.currentProjectId,
+          userId: userId
+        }).then((res) => {
+          if (res.data.code === 0) {
+            this.$emit('updateProject');
+            this.showSuccess('成员移除成功');
+          } else this.showError('成员移除失败');
+        });
+      });
     },
 
     // 发送邀请和接受邀请
@@ -207,7 +234,8 @@ export default {
           username: this.inviteUsername
         }).then((res) => {
           const data = res.data;
-          if (data.code === 0) console.log(data);
+          if (data.code === 0) this.showSuccess('邀请成员成功，正在等待对方处理');
+          else this.showError('邀请成员失败', data.msg);
         });
       }
     },
@@ -216,7 +244,10 @@ export default {
         projectId: projectId
       }).then((res) => {
         const data = res.data;
-        if (data.code === 0) this.$emit('updateUserInfo');
+        if (data.code === 0) {
+          this.showSuccess('成功加入项目');
+          this.$emit('updateUserInfo');
+        } else this.showError('加入项目失败');
       });
     },
     rejectInvite (projectId) {
@@ -224,7 +255,30 @@ export default {
         projectId: projectId
       }).then((res) => {
         const data = res.data;
-        if (data.code === 0) this.$emit('updateUserInfo');
+        if (data.code === 0) {
+          this.$emit('updateUserInfo');
+        } else this.showError('拒绝失败');
+      });
+    },
+
+    // 消息提示
+    showDialog (input, msg, title, confirmHandle) {
+      this.inputDialog.show = true;
+      this.inputDialog.input = input;
+      this.inputDialog.msg = msg;
+      this.inputDialog.title = title;
+      this.inputDialog.confirmHandle = confirmHandle;
+    },
+    showError (title, msg) {
+      this.$Notice.error({
+        title: title,
+        desc: msg
+      });
+    },
+    showSuccess (title, msg) {
+      this.$Notice.success({
+        title: title,
+        desc: msg
       });
     }
   }
@@ -315,6 +369,20 @@ export default {
   -moz-border-radius: 50%;
   border-radius: 50%;
   cursor: pointer;
+}
+.co-users {
+  margin-left: 5px;
+}
+.co-user-color {
+  width: 10px;
+  height: 10px;
+  margin-top: 5px;
+  display: inline-block;
+}
+.file-name {
+  width: 100px;
+  padding-left: 5px;
+  text-align: left;
 }
 .notification {
   border: 1px solid red;

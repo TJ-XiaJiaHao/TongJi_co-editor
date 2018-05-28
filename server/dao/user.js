@@ -2,6 +2,7 @@ const MongoClient = require('mongodb').MongoClient;                   //引入mo
 const DB_CONN_STR = 'mongodb://115.159.215.48:27017/COEDITOR';        //连接字符串
 const uuid = require('node-uuid');
 const ERROR = require('../model/ERROR');    // 错误编码
+const Socket = require('./sokcet');
 
 function User (name, pwd) {
   return {
@@ -129,7 +130,9 @@ function processInvite (projectId, userId, accept, callback) {
           closedb();
           if (err) callback && callback(ERROR.UPDATE_FAIL);
           else if (!accept) callback && callback({code: ERROR.SUCCESS.code, msg: '处理成功'});
-          else addUserToProject(projectId, user.id, user.name, callback);
+          else {
+            addUserToProject(projectId, user.id, user.name, callback);
+          }
         });
       }
     });
@@ -141,13 +144,17 @@ function addUserToProject (projectId, userId, username, callback) {
     const collection = db.collection('projects');
     collection.find({projectId: projectId}).toArray((err, res) => {
       if(err){closedb();callback && callback(ERROR.FIND_FAIL);}
+      const project = res[0];
       const opUsers = res[0].opUsers.concat();
-      const oUser = opUsers.filter((item) => {item.id = userId;})[0];
+      const oUser = opUsers.filter((item) => {item.id === userId;})[0];
       if(!oUser) opUsers.push({id: userId, name: username});
       collection.updateMany({projectId: projectId}, {$set: {opUsers: opUsers}}, (err) => {
         closedb();
         if (err) callback && callback(ERROR.UPDATE_FAIL);
-        callback && callback({code: ERROR.SUCCESS.code, msg: '处理成功'});
+        else {
+          Socket.notifyUser(project.userId, JSON.stringify({type: 'notification', msg: `${username}成功加入项目${project.projectName}`}));
+          callback && callback({code: ERROR.SUCCESS.code, msg: '处理成功'});
+        }
       });
     });
   });

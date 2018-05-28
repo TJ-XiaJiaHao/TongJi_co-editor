@@ -33,9 +33,10 @@ router.post('/rename', (req, res) => {
   const projectId = req.body.projectId;
   const projectName = req.body.projectName;
   const userId = req.session.user ? req.session.user.id : null;
+  const userName = req.session.user.name;
   if(!projectId || !projectName) res.json(ERROR.ARGUMENTS_ERROR);
   else if (!userId) res.json(ERROR.USER_NOT_LOGIN);
-  else Project.rename(projectId, userId, projectName, (data) => { res.json(data); });
+  else Project.rename(projectId, userId, projectName,userName, (data) => { res.json(data); });
 });
 
 // 获取项目详细信息
@@ -51,9 +52,10 @@ router.post('/createFolder', (req, res) => {
   const projectId = req.body.projectId;
   const folderName = req.body.folderName;
   const fatherId = req.body.fatherId;
+  const userName = req.session.user.name;
   if(req.session.user === null) res.json(ERROR.USER_NOT_LOGIN);
   else if(!projectId || !folderName || !fatherId) res.json(ERROR.ARGUMENTS_ERROR);
-  else Project.createFile(projectId, folderName, 0, fatherId, (data) => { res.json(data); });
+  else Project.createFile(projectId, folderName, 0, fatherId, userName, (data) => { res.json(data); });
 });
 
 // 创建文件
@@ -61,27 +63,30 @@ router.post('/createFile', (req, res) => {
   const projectId = req.body.projectId;
   const fileName = req.body.fileName;
   const fatherId = req.body.fatherId;
+  const userName = req.session.user.name;
   if(req.session.user === null) res.json(ERROR.USER_NOT_LOGIN);
   else if(!projectId || !fileName || !fatherId) res.json(ERROR.ARGUMENTS_ERROR);
-  else Project.createFile(projectId, fileName, 1, fatherId, (data) => { res.json(data); });
+  else Project.createFile(projectId, fileName, 1, fatherId, userName, (data) => { res.json(data); });
 });
 
 // 删除文件夹
 router.post('/deleteFolder', (req, res) => {
   const projectId = req.body.projectId;
   const folderId = req.body.folderId;
+  const userName = req.session.user.name;
   if(req.session.user === null) res.json(ERROR.USER_NOT_LOGIN);
   else if(!projectId || !folderId) res.json(ERROR.ARGUMENTS_ERROR);
-  else Project.removeFile(projectId, folderId, (data) => { res.json(data); });
+  else Project.removeFile(projectId, folderId, userName, (data) => { res.json(data); });
 });
 
 // 删除文件
 router.post('/deleteFile', (req, res) => {
   const projectId = req.body.projectId;
   const fileId = req.body.fileId;
+  const userName = req.session.user.name;
   if(req.session.user === null) res.json(ERROR.USER_NOT_LOGIN);
   else if(!projectId || !fileId) res.json(ERROR.ARGUMENTS_ERROR);
-  else Project.removeFile(projectId, fileId, (data) => { res.json(data); });
+  else Project.removeFile(projectId, fileId, userName, (data) => { res.json(data); });
 });
 
 // 文件夹重命名
@@ -89,9 +94,10 @@ router.post('/renameFolder', (req, res) => {
   const projectId = req.body.projectId;
   const folderId = req.body.folderId;
   const folderName = req.body.folderName;
+  const userName = req.session.user.name;
   if(req.session.user === null) res.json(ERROR.USER_NOT_LOGIN);
   else if(!projectId || !folderId || !folderName) res.json(ERROR.ARGUMENTS_ERROR);
-  else Project.renameFile(projectId, folderId, folderName, (data) => { res.json(data); });
+  else Project.renameFile(projectId, folderId, folderName, userName, (data) => { res.json(data); });
 });
 
 // 文件重命名
@@ -99,9 +105,10 @@ router.post('/renameFile', (req, res) => {
   const projectId = req.body.projectId;
   const fileId = req.body.fileId;
   const fileName = req.body.fileName;
+  const userName = req.session.user.name;
   if(req.session.user === null) res.json(ERROR.USER_NOT_LOGIN);
   else if(!projectId || !fileId || !fileName) res.json(ERROR.ARGUMENTS_ERROR);
-  else Project.renameFile(projectId, fileId, fileName, (data) => { res.json(data); });
+  else Project.renameFile(projectId, fileId, fileName, userName, (data) => { res.json(data); });
 });
 
 router.post('/inviteUser', (req, res) => {
@@ -120,7 +127,7 @@ router.post('/removeUser', (req, res) => {
   const userId = req.body.userId;
   if(req.session.user === null) res.json(ERROR.USER_NOT_LOGIN);
   else if(!projectId || !userId) res.json(ERROR.ARGUMENTS_ERROR);
-  else Project.removeUser(projectId, userId, (data) => { res.json(data); });
+  else Project.removeUser(projectId, userId, (data) => { console.log(data); res.json(data); });
 });
 
 module.exports = router;

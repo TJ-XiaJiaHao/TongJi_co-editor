@@ -9,6 +9,7 @@ module.exports = {
   USER_EXIST: {code: 1005, msg:'用户已存在'},
   USER_NOT_LOGIN: {code: 1006, msg:'用户未登录'},
   USER_NOT_EXIST: {code: 1007, msg:'用户不存在'},
+  USER_ALREADY_IN_PROJECT: {code: 1008, msg:'该用户已经是该项目成员'},
   CREATE_FILE_FAIL: {code: 2001, msg: '文件创建失败'},
   UPDATE_FILE_FAIL: {code: 2002, msg: '文件更新失败'},
   GET_FILE_FAIL: {code: 2003, msg:'获取文件失败'},

@@ -1,8 +1,9 @@
 <template>
   <div class="ace">
-    <vHeader :user="user" :host="host" :project="project" :coUsers="coUsers"
+    <vHeader :user="user" :host="host" :project="project" :coUsers="coUsers" :title="currentFileName"
              @changeProject="loadProject"
-             @updateUserInfo="loadUserInfo"></vHeader>
+             @updateUserInfo="loadUserInfo"
+             @updateProject="loadProject(project.projectId)"></vHeader>
     <div class="content">
       <div class="left">
         <vFileSystem :project = "project" @loadFile="loadFile" :host="host"></vFileSystem>
@@ -43,8 +44,10 @@ export default {
       ace: null,                                        // ace编辑器实例
       doc: null,                                        // 当前正在编辑的文档
       project: {},                                      // 当前项目详细信息
+      currentFileName: '',
       connection: null,                                 // sharedb连接\
       isEditorLoaded: false,                            // 编辑器是否加载完成
+      editorLockTime: 0,
       editorConfig: {                                   // 编辑器配置
         content: '',
         lang: 'javascript',
@@ -61,11 +64,16 @@ export default {
     // 编辑器初始化
     this.ace = this.$children[this.$children.length - 1].editor;          // 编辑器
     this.ace.session.on('change', (delta) => {    // 监听编辑器改动事件
-      if (!this.isEditorLoaded) {
-        // this.isEditorLoaded = true;
+      console.log('onChange');
+      if (this.editorLockTime !== 0) {
+        console.log('reduce time');
+        this.editorLockTime--;
+      } else if (!this.isEditorLoaded) {
+        console.log('lock');
       } else if (delta.action === 'insert') {
         this.add(delta.start.row, delta.start.column, delta.lines);
       } else if (delta.action === 'remove') {
+
         this.remove(delta.start.row, delta.start.column, delta.lines);
       }
     });
@@ -86,6 +94,9 @@ export default {
           if (sProject) sProject.projectName = data.project.projectName;
           if (jProject) jProject.projectName = data.project.projectName;
           this.project = data.project;
+          if (data.msg) {
+            this.$Notice.info({ title: '通知', desc: data.msg });
+          }
         } else if (data.op === 'delete') {
           this.loadUserInfo();
         }
@@ -101,7 +112,12 @@ export default {
           const user = this.coUsers.filter((item) => item.userId === data.userId)[0];
           if (!user) this.coUsers.push({userId: data.userId, userName: data.userName});
         }
-      } else if (data.type === 'notification') this.loadUserInfo();
+        if(data.msg) this.$Notice.info({ title: '通知', desc: data.msg });
+      } else if (data.type === 'notification') {
+        this.$Notice.info({ title: '通知', desc: data.msg });
+        this.loadUserInfo();
+        this.loadProject(this.project.projectId);
+      }
     };
 
     axios.defaults.withCredentials = true;            // 配置axios自动设置cookie
@@ -111,8 +127,10 @@ export default {
   methods: {
     // 加载项目内容
     loadProject (projectId) {
+      if (!projectId) return;
       axios.get(`${this.host}/projects/details?projectId=${projectId}`).then((data) => {
-        this.project = data.data.project;
+        if (data.data.code === 0) this.project = data.data.project;
+        else this.showError('项目加载失败');
       });
     },
 
@@ -124,17 +142,19 @@ export default {
           this.socket.send(JSON.stringify({type: 'connect', op: 'init', userId: this.user.id}));
         } else {
           this.user = {};
+          this.showError('用户未登录');
         }
       });
     },
 
     // 加载文件内容
-    loadFile (id) {
+    loadFile (id, filename) {
       if (this.doc && this.doc.id === id) return;                 // 去除无效操作
       if (this.doc) this.doc._events.op = null;                   // 清空监听事件
       this.doc = this.connection.get(this.project.projectId, id);
       this.doc.subscribe(this.init);    // 订阅
       this.doc.on('op', this.update);     // 文件被修改（他人或自己，都会更新
+      this.currentFileName = filename;
     },
 
     // 编辑器辅助工具
@@ -191,15 +211,14 @@ export default {
       setTimeout(() => {
         this.editorConfig.content = nValue;
       }, 0);        // 防止两个文件初始内容一致导致无刷新
-      console.log(this.doc.id);
       this.socket.send(JSON.stringify({type: 'doc', op: 'switch', userId: this.user.id, docId: this.doc.id, userName: this.user.name}));
       this.lockEditor();
     },
 
     // 同步更新文件
     update (op, source) {
+      console.log(op);
       if (!source && this.ace) {          // source === true代表此次操作是该客户端操作的，无需重复修改
-        this.lockEditor();
         // 长度为1代表从0开始，长度不为1代表从其他位置开始
         // add: {0: 12, 1: 'adb'} 或者 {0: 'adb'}
         // remove: {0: 12, 1: {d: 2}} 或者 {0: {d:2}}
@@ -213,6 +232,7 @@ export default {
               start: this.getPoint(pStart),
               end: this.getPoint(pEnd)
             };
+            this.editorLockTime++;
             this.ace.session.replace(range, '');      // 替换指定区域的内容
           } else if (type === 'string') {             // 从起始处进行批量替换操作
             const pStart = 0;
@@ -225,6 +245,7 @@ export default {
               start: this.getPoint(pStart),
               end: this.getPoint(pStart)
             };
+            this.editorLockTime+=2;
             this.ace.session.replace(rangeDel, '');         // 替换指定区域的内容
             this.ace.session.replace(rangeAdd, op[0]);      // 替换指定区域的内容
           } else if (type === 'number') {             // 从非起始处进行删除或替换操作
@@ -234,12 +255,14 @@ export default {
               start: this.getPoint(pStart),
               end: this.getPoint(pEnd)
             };
+            this.editorLockTime++;
             this.ace.session.replace(range, '');      // 替换指定区域的内容
             if (op.length === 3) {
               const rangeAdd = {
                 start: this.getPoint(pStart),
                 end: this.getPoint(pStart)
               };
+              this.editorLockTime++;
               this.ace.session.replace(rangeAdd, op[1]);      // 替换指定区域的内容
             }
           }
@@ -250,9 +273,36 @@ export default {
             start: this.getPoint(pStart),
             end: this.getPoint(pStart)
           };
+          this.editorLockTime++;
           this.ace.session.replace(range, op[op.length - 1]);
         }
       }
+    },
+    addSelection (range) {
+      console.log(range);
+      this.ace.multiSelect.addRange(this.getRange(range));
+    },
+    getRange (range) {
+      const r = this.ace.getSelectionRange();
+      r.start.row = range.start.row;
+      r.start.column = range.start.column;
+      r.end.row = range.end.row;
+      r.end.column = range.end.column;
+      return r;
+    },
+
+    // 消息提示
+    showError (title, msg) {
+      this.$Notice.error({
+        title: title,
+        desc: msg
+      });
+    },
+    showSuccess (title, msg) {
+      this.$Notice.success({
+        title: title,
+        desc: msg
+      });
     }
   }
 };

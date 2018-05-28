@@ -31,7 +31,7 @@ export default {
   methods: {
     fileClick (file) {
       if (file.children) file.showChildren = !file.showChildren;
-      else this.$emit('loadFile', file.id);
+      else this.$emit('loadFile', file.id, file.name);
     },
     loadFile (id) {
       this.$emit('loadFile', id);

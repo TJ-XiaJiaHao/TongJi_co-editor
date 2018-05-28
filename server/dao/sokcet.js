@@ -17,7 +17,7 @@ function initWS(server) {
     ws.on('message', function(msg) {
       const jsonMsg = JSON.parse(msg);
       if (jsonMsg.type === 'connect') createSocket(ws, jsonMsg);
-      else if (jsonMsg.type === 'doc') switchDoc(ws, jsonMsg);
+      else if (jsonMsg.type === 'doc') switchDoc(jsonMsg);
       else stream.push(JSON.parse(msg));
     });
 
@@ -25,29 +25,29 @@ function initWS(server) {
   });
 }
 
-function updateProject (projectId, project){
+function updateProject (projectId, project, msg){
   const users = sockets.filter((item) => item.projectId === projectId);
   for (let i = 0; i < users.length; i++){
-    users[i].ws.readyState === WebSocket.OPEN && users[i].ws.send(JSON.stringify({type: 'project', op: 'update', project: project}));
+    users[i].ws.readyState === WebSocket.OPEN && users[i].ws.send(JSON.stringify({type: 'project', op: 'update', project: project, msg: msg}));
   }
 }
 
-function switchDoc (ws, msg) {
+function switchDoc (msg) {
   const user = sockets.filter((item) => item.userId === msg.userId)[0];
   if (!user) return;
   const oDocId = user.docId;
   const oJoins = oDocId === '' ? [] : sockets.filter((item) => item.docId === oDocId);
-  const nJoins = sockets.filter((item) => item.docId === msg.docId);
+  const nJoins = msg.docId === '' ? [] : sockets.filter((item) => item.docId === msg.docId);
   user.docId = msg.docId;
   user.userName = msg.userName;
 
   for ( let i = 0; i < oJoins.length; i++) {
     user.ws.readyState === WebSocket.OPEN && user.ws.send(JSON.stringify({type: 'doc', op: 'out', userId: oJoins[i].userId, userName: oJoins[i].userName}));
-    oJoins[i].ws.readyState === WebSocket.OPEN && oJoins[i].ws.send(JSON.stringify({type: 'doc', op: 'out', userId: msg.userId}));
+    oJoins[i].ws.readyState === WebSocket.OPEN && oJoins[i].ws.send(JSON.stringify({type: 'doc', op: 'out', userId: msg.userId, msg: oJoins[i].userId === msg.userId ? null :`用户${msg.userName}退出编辑`}));
   }
   for ( let i = 0; i < nJoins.length; i++) {
     user.ws.readyState === WebSocket.OPEN && user.ws.send(JSON.stringify({type: 'doc', op: 'join', userId: nJoins[i].userId, userName: nJoins[i].userName}));
-    nJoins[i].ws.readyState === WebSocket.OPEN && nJoins[i].ws.send(JSON.stringify({type: 'doc', op: 'join', userId: msg.userId, userName: msg.userName}));
+    nJoins[i].ws.readyState === WebSocket.OPEN && nJoins[i].ws.send(JSON.stringify({type: 'doc', op: 'join', userId: msg.userId, userName: msg.userName, msg: `用户${msg.userName}加入编辑`}));
   }
 }
 
@@ -68,6 +68,10 @@ function createSocket (ws, msg) {
 function closeSocket (userId) {
   for ( let i = 0; i < sockets.length; i++) {
     if (sockets[i].userId === userId) {
+      switchDoc({
+        userId: userId,
+        docId: ''
+      });
       sockets.splice(i, 1);
       break;
     }

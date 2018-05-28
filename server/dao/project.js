@@ -113,11 +113,12 @@ function removeProjectFromUser(project, userId) {
 }
 
 // 项目重命名
-function rename (projectId, userId, projectName, callback) {
+function rename (projectId, userId, projectName, username, callback) {
   get(projectId, (res) => {
     if (!res.project) callback && callback(ERROR.PROJECT_NOT_EXIST);
     else {
       const project = res.project;
+      const oName = project.projectName;
       connectToMongo((db, closedb) => {
         const collection = db.collection('projects');
         if (project.userId === userId || project.opUsers.filter((item) => item.id === userId).length !== 0) {
@@ -126,7 +127,7 @@ function rename (projectId, userId, projectName, callback) {
             closedb();
             if (err) callback && callback(ERROR.UPDATE_FAIL);
             else {
-              updateProjectNameInUser(project);
+              updateProjectNameInUser(username, oName, project);
               callback && callback({code: ERROR.SUCCESS.code, msg: '项目重命名成功', project: project});
             }
           });
@@ -139,7 +140,7 @@ function rename (projectId, userId, projectName, callback) {
   });
 }
 
-function updateProjectNameInUser (project) {
+function updateProjectNameInUser (username, oName, project) {
   project.opUsers.push({id: project.userId});
   const users = project.opUsers;
   connectToMongo((db, closedb) => {
@@ -152,7 +153,7 @@ function updateProjectNameInUser (project) {
         if(selfProject)selfProject.projectName = project.projectName;
         if(joinProject)joinProject.projectName = project.projectName;
         collection.updateMany({id: users[i].id}, {$set: {selfProjects: res[0].selfProjects, joinProjects: res[0].joinProjects}}, () => {
-          Socket.notifyUser(users[i].id, JSON.stringify({type: 'project', op: 'update', project: project}));
+          Socket.notifyUser(users[i].id, JSON.stringify({type: 'project', op: 'update', project: project, msg: `${username}将项目${oName}重命名为${project.projectName}`}));
           finish++;
           if(finish === users.length) closedb();
         });
@@ -178,7 +179,7 @@ function get (projectId, callback) {
 }
 
 // 创建文件
-function createFile (projectId, fileName, type, fatherId, callback) {
+function createFile (projectId, fileName, type, fatherId, username, callback) {
   get(projectId, (res) => {
     if (!res.project) callback && callback(ERROR.PROJECT_NOT_EXIST);
     else {
@@ -195,14 +196,14 @@ function createFile (projectId, fileName, type, fatherId, callback) {
             if (err) callback && callback(ERROR.UPDATE_FAIL);
             else if(type === 1){
               project.files = projectFiles;
-              Socket.updateProject(projectId, project);
+              Socket.updateProject(projectId, project, `${username}创建了文件${fileName}`);
               Doc.create(projectId, file.id, (data) => {
                 data.files = projectFiles;
                 callback && callback(data);
               });
             } else {
               project.files = projectFiles;
-              Socket.updateProject(projectId, project);
+              Socket.updateProject(projectId, project, `${username}创建了文件夹${fileName}`);
               callback && callback ({code: ERROR.SUCCESS.code, msg: '文件夹创建成功', files: projectFiles});
             }
           });
@@ -213,12 +214,13 @@ function createFile (projectId, fileName, type, fatherId, callback) {
 }
 
 // 文件重命名
-function renameFile (projectId, fileId, name, callback) {
+function renameFile (projectId, fileId, name, username, callback) {
   get(projectId, (res) => {
     if (!res.project) callback && callback(ERROR.PROJECT_NOT_EXIST);
     else {
       const project = res.project;
       const projectFiles = res.project.files.concat();
+      const oName = getFileName(projectFiles, fileId);
       const canRename = renameInFiles(projectFiles, fileId, name);
       if (!canRename) callback && callback(ERROR.UPDATE_FAIL);
       else {
@@ -229,7 +231,7 @@ function renameFile (projectId, fileId, name, callback) {
             if (err) callback && callback(ERROR.UPDATE_FAIL);
             else {
               project.files = projectFiles;
-              Socket.updateProject(projectId, project);
+              Socket.updateProject(projectId, project, `${username}将文件${oName}改名为${name}`);
               callback && callback({code: ERROR.SUCCESS.code, msg: '文件重命名成功', files: projectFiles});
             }
           });
@@ -240,12 +242,13 @@ function renameFile (projectId, fileId, name, callback) {
 }
 
 // 删除文件
-function removeFile (projectId, fileId, callback) {
+function removeFile (projectId, fileId, username, callback) {
   get(projectId, (res) => {
     if (!res.project) callback && callback(ERROR.PROJECT_NOT_EXIST);
     else {
       const project = res.project;
       const projectFiles = res.project.files.concat();
+      const oName = getFileName(projectFiles, fileId);
       const canRemove = removeFromFiles(projectId, projectFiles, fileId);
       if (!canRemove) callback && callback(ERROR.UPDATE_FAIL);
       else {
@@ -256,7 +259,7 @@ function removeFile (projectId, fileId, callback) {
             if (err) callback && callback(ERROR.UPDATE_FAIL);
             else {
               project.files = projectFiles;
-              Socket.updateProject(projectId, project);
+              Socket.updateProject(projectId, project, `${username}删除文件${oName}`);
               callback && callback({code: ERROR.SUCCESS.code, msg: '删除文件成功', files: projectFiles});
             }
           });
@@ -277,6 +280,7 @@ function inviteUser (projectId, username, owername, callback) {
         collection.find({name: username}).toArray((err, res) => {
           if (err) {closedb(); callback && callback(ERROR.FIND_FAIL);}
           else if(res.length === 0) {closedb();callback && callback(ERROR.USER_NOT_EXIST);}
+          else if(project.userId === res[0].id || project.opUsers.filter((item) => item.id === res[0].id).length !== 0) callback && callback(ERROR.USER_ALREADY_IN_PROJECT);
           else{
             const toUserId = res[0].id;
             const nInvitedProjects =  res[0].invitedProjects.concat();
@@ -291,7 +295,7 @@ function inviteUser (projectId, username, owername, callback) {
               closedb();
               if (err) callback && callback(ERROR.UPDATE_FAIL);
               else {
-                Socket.notifyUser(toUserId, JSON.stringify({type: 'notification', invitedProjects:nInvitedProjects}));
+                Socket.notifyUser(toUserId, JSON.stringify({type: 'notification', invitedProjects:nInvitedProjects, msg:  `收到来自${owername}的项目邀请`}));
                 callback && callback({code: ERROR.SUCCESS.code, msg: '邀请成功'});
               }
             });
@@ -317,6 +321,8 @@ function removeUser (projectId, userId, callback) {
           closedb();
           if (err) callback && callback(ERROR.UPDATE_FAIL);
           else {
+            callback && callback({code: ERROR.SUCCESS.code, msg: '移除用户成功'});
+            Socket.notifyUser(userId, JSON.stringify({type: 'notification', msg:  `您已被管理员移除项目${project.projectName}`}));
             removeProjectFromUser(project, userId);
           }
         });
@@ -411,6 +417,19 @@ function renameInFiles (files, id, name) {
     } else if (files[i].children) {
       find = find || renameInFiles(files[i].children, id, name);
       if (find) return true;
+    }
+  }
+  return find;
+}
+
+function getFileName(files, id) {
+  let find = false;
+  for (let i = 0;i < files.length; i++) {
+    if (files[i].id === id) {
+      return files[i].name;
+    } else if (files[i].children) {
+      find = find || getFileName(files[i].children, id);
+      if (find) return find;
     }
   }
   return find;
