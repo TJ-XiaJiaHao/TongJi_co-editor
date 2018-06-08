@@ -1,5 +1,5 @@
 const MongoClient = require('mongodb').MongoClient;                   //引入mongodb模块，获得客户端对象
-const DB_CONN_STR = 'mongodb://115.159.215.48:27017/COEDITOR';        //连接字符串
+const DB_CONN_STR = require('../config').database;
 const uuid = require('node-uuid');
 const ERROR = require('../model/ERROR');    // 错误编码
 const Socket = require('./sokcet');

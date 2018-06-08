@@ -20,6 +20,7 @@
     "module": "^1.2.5",
     "ot-text": "^1.0.1",
     "sharedb": "^1.0.0-beta.8",
+    "sharedb-mongo": "^1.0.0-beta.4",
     "utf-8-validate": "^4.0.2",
     "vue": "^2.5.2",
     "vue-router": "^3.0.1",

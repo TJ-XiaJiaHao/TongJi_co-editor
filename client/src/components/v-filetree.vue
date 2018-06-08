@@ -4,6 +4,8 @@
       <div class="file-tree-title" @click="fileClick(file)"  :class="{'type-folder': file.children, 'type-file': !file.children }" :id="file.id">
         <img :src="file.showChildren ? downArrow : rightArrow" v-if="file.children" class="arrow"/>
         <span class="arrow" v-else></span>
+        <img :src="directoryIcon" class="directory-icon" v-if="file.children"/>
+        <img :src="fileIcon" class="file-icon" v-else />
         <span class="file-name ">{{file.name}}</span>
       </div>
       <div class="file-tree-child" v-if="file.showChildren">
@@ -15,6 +17,8 @@
 <script>
 import downArrow from './../assets/down-arrow.png';
 import rightArrow from './../assets/right-arrow.png';
+import directoryIcon from './../assets/directory.svg';
+import fileIcon from './../assets/file.svg';
 export default {
   name: 'fileTree',
   props: {
@@ -25,7 +29,9 @@ export default {
   data () {
     return {
       downArrow,
-      rightArrow
+      rightArrow,
+      directoryIcon,
+      fileIcon
     };
   },
   methods: {
@@ -58,5 +64,9 @@ export default {
 }
 .file-name {
   vertical-align: top;
+}
+.directory-icon, .file-icon {
+  width: 15px;
+  height: 15px;
 }
 </style>

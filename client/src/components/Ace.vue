@@ -32,6 +32,7 @@ import sharedb from 'sharedb/lib/client';                     // sharedb客户�
 import Websocket from 'ws';                                   // websocket库
 import otText from 'ot-text';                                 // sharedb中存储的一种类型
 import axios from 'axios';                                    // http协议库
+import config from '@/config';
 
 export default {
   components: {
@@ -51,12 +52,12 @@ export default {
       editorConfig: {                                   // 编辑器配置
         content: '',
         lang: 'javascript',
-        theme: 'monokai'
+        theme: 'chrome'
       },
       user: {},                                          // 用户信息
       coUsers: [],                                         // 共同协作的用户
       // host: 'http://115.159.215.48:3000',                     // 后端主机
-      host: 'http://localhost:3000',                     // 后端主机
+      host: `http://${config.host}`,                     // 后端主机
       socket: null                                      // socket连接
     };
   },
@@ -65,12 +66,9 @@ export default {
     // 编辑器初始化
     this.ace = this.$children[this.$children.length - 1].editor;          // 编辑器
     this.ace.session.on('change', (delta) => {    // 监听编辑器改动事件
-      console.log('onChange');
       if (this.editorLockTime !== 0) {
-        console.log('reduce time');
         this.editorLockTime--;
       } else if (!this.isEditorLoaded) {
-        console.log('lock');
       } else if (delta.action === 'insert') {
         this.add(delta.start.row, delta.start.column, delta.lines);
       } else if (delta.action === 'remove') {
@@ -81,11 +79,11 @@ export default {
 
     // sharedb初始化
     sharedb.types.register(otText.type);          // 注册text类型
-    const shareDBSocket = new WebSocket('ws://115.159.215.48:3000/');
+    const shareDBSocket = new WebSocket(`ws://${config.host}/`);
     this.connection = new sharedb.Connection(shareDBSocket);
 
     // socket初始化
-    this.socket = new WebSocket('ws://115.159.215.48:3000/');
+    this.socket = new WebSocket(`ws://${config.host}/`);
     this.socket.onmessage = (res) => {
       const data = JSON.parse(res.data);
       if (data.type === 'project' && data.project) {

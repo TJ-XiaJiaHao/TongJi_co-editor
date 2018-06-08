@@ -1,5 +1,6 @@
+const config = require('../config');
 const ERROR = require('../model/ERROR');    // 错误编码
-const db = require('sharedb-mongo')('mongodb://115.159.215.48:27017/COEDITOR');   // mongodb
+const db = require('sharedb-mongo')(config.database);   // mongodb
 const ShareDB = require('sharedb');   // sharedb
 const otText = require('ot-text');    // ot-text, 一种sharedb支持的类型
 

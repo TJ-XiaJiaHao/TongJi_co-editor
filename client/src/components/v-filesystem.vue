@@ -3,7 +3,10 @@
     <vFileTree :files="project.files" @loadFile="loadFile"></vFileTree>
 
     <div class="menu" v-if="menu.show" :style="{left: menu.left + 'px', top: menu.top + 'px', width: menu.width + 'px'}">
-      <div class="menu-item" v-for="item in menu.items" :key="item.name" :style="{height: menu.itemHeight + 'px', lineHeight: menu.itemHeight + 'px'}" @click="handleFn(item.handle)">{{item.name}}</div>
+      <div class="menu-item" v-for="item in menu.items" :key="item.name" :style="{height: menu.itemHeight + 'px', lineHeight: menu.itemHeight + 'px'}" @click="handleFn(item.handle)">
+        <img :src="item.img" class="menu-img"/>
+        <label>{{item.name}}</label>
+      </div>
     </div>
 
     <Modal
@@ -19,6 +22,10 @@
 
 <script>
 import vFileTree from '@/components/v-filetree';
+import directoryIcon from './../assets/directory.svg';
+import fileIcon from './../assets/file.svg';
+import deleteIcon from './../assets/delete.svg';
+import renameIcon from './../assets/rename.svg';
 import axios from 'axios';                                    // http协议库
 export default {
   components: {
@@ -44,16 +51,20 @@ export default {
         itemHeight: 25,
         items: [{
           name: '新建文件夹',
-          handle: 'createFolder'
+          handle: 'createFolder',
+          img: directoryIcon
         }, {
           name: '新建文件',
-          handle: 'createFile'
+          handle: 'createFile',
+          img: fileIcon
         }, {
           name: '删除',
-          handle: 'delete'
+          handle: 'delete',
+          img: deleteIcon
         }, {
           name: '重命名',
-          handle: 'rename'
+          handle: 'rename',
+          img: renameIcon
         }]
       },
       rightClickFile: null,
@@ -78,6 +89,10 @@ export default {
 
     // 文件系统基本操作
     createFolder () {
+      if (!this.project || !this.project.projectId) {
+        this.showError('请选择一个项目');
+        return;
+      }
       this.showDialog('',  null, '请输入文件夹名', () => {
         axios.post(`${this.host}/projects/createFolder`, {
           projectId: this.project.projectId,
@@ -89,6 +104,10 @@ export default {
       });
     },
     createFile () {
+      if (!this.project || !this.project.projectId) {
+        this.showError('请选择一个项目');
+        return;
+      }
       this.showDialog('',  null, '请输入文件名', () => {
         axios.post(`${this.host}/projects/createFile`, {
           projectId: this.project.projectId,
@@ -100,6 +119,10 @@ export default {
       });
     },
     delete () {
+      if (this.rightClickFile.id === '-1') {
+        this.showError('请选择要删除的文件');
+        return;
+      }
       this.showDialog(null, '删除后将无法回退，是否确认删除？', '确认框', () => {
         if (this.rightClickFile.type === 0) {
           axios.post(`${this.host}/projects/deleteFolder`, {
@@ -119,6 +142,10 @@ export default {
       });
     },
     rename () {
+      if (this.rightClickFile.id === '-1') {
+        this.showError('请选择要重命名的文件');
+        return;
+      }
       if (this.rightClickFile.type === 0) {
         this.showDialog('',  null, '请输入文件夹名', () => {
           axios.post(`${this.host}/projects/renameFolder`, {
@@ -201,27 +228,31 @@ export default {
 .file-system {
   width: 100%;
   height: 100%;
-  background: rgb(60, 63, 65);
   overflow-x: hidden;
   overflow-y: scroll;
   position: relative;
-  color: rgb(187, 187, 187);
 }
 .menu {
   position: absolute;
-  border: 1px solid rgb(81, 81, 81);
-  background: rgb(60, 63, 65);
   border-radius: 2px;
   z-index: 1000;
+  background: rgb(232, 232, 232);
+  text-align: left;
 }
 
 .menu-item {
-  border: 1px solid rgb(81, 81, 81);
   font-size: 14px;
   cursor: default;
+  padding-left: 5px;
 }
 .menu-item:hover {
-  background: rgb(75, 110, 175);
+  background: rgb(56, 117, 214);
+  color: white;
+}
+.menu-img{
+  width: 15px;
+  height: 15px;
+  vertical-align: center;
 }
 ::-webkit-scrollbar {/*隐藏滚轮*/
   display: none;

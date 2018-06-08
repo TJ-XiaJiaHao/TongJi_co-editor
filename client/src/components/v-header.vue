@@ -10,12 +10,14 @@
         <img :src="deleteIcon" class="op-icon" @click="deleteProject"/>
         <img :src="renameIcon" class="op-icon" @click="renameProject"/>
         <img :src="downloadIcon" class="op-icon" @click="downloadProject"/>
-        <img :src="settingIcon" class="op-icon" @click="projectSetting = true" v-if="isRoot"/>
+        <img :src="settingIcon" class="op-icon" @click="settingProject" v-if="isRoot"/>
         <img :src="outIcon" class="op-icon" @click="removeUser(user.id)" v-else/>
       </div>
     </div>
     <div class="header-right">
+      <div v-if="title && title != ''">当前文件：</div>
       <div class="file-name"> {{title}} </div>
+      <div v-if="coUsers && coUsers.length > 0">当前参与者：</div>
       <div>
         <span v-for="(user, index) in coUsers" :key = "user.userId" class="co-users">
           <span :style="{background: colors[index % colors.length]}" class="co-user-color"></span>
@@ -71,14 +73,14 @@
   </div>
 </template>
 <script>
-import addIcon from './../assets/add.png';
-import deleteIcon from './../assets/delete.png';
-import projectIcon from './../assets/project.png';
-import renameIcon from './../assets/rename.png';
-import settingIcon from './../assets/setting.png';
-import logoutIcon from './../assets/logout.png';
-import outIcon from './../assets/out.png';
-import downloadIcon from './../assets/download.png';
+import addIcon from './../assets/add-black.svg';
+import deleteIcon from './../assets/delete-black.svg';
+import projectIcon from './../assets/project-black.svg';
+import renameIcon from './../assets/rename-black.svg';
+import settingIcon from './../assets/setting-black.svg';
+import logoutIcon from './../assets/logout-black.svg';
+import outIcon from './../assets/out-black.svg';
+import downloadIcon from './../assets/download-black.svg';
 import axios from 'axios';                                    // http协议库
 export default {
   props: {
@@ -177,6 +179,10 @@ export default {
 
     // 项目操作                   下载、上传
     createProject () {
+      if (!this.user || !this.user.userId) {
+        this.showError('请先登录');
+        return;
+      }
       this.showDialog('', null, '请输入项目名', () => {
         if (this.inputDialog.input !== '') {
           axios.post(`${this.host}/projects/create`, {
@@ -195,6 +201,10 @@ export default {
       this.$emit('changeProject', this.currentProjectId);
     },
     renameProject () {
+      if (!this.project || !this.project.projectId) {
+        this.showError('请选择一个项目');
+        return;
+      }
       this.showDialog('', null, '请输入项目名', () => {
         if (this.inputDialog.input !== '') {
           axios.post(`${this.host}/projects/rename`, {
@@ -207,6 +217,10 @@ export default {
       });
     },
     deleteProject () {
+      if (!this.project || !this.project.projectId) {
+        this.showError('请选择一个项目');
+        return;
+      }
       this.showDialog(null, '项目删除后将无法找回，是否确认删除？', '确认框', () => {
         axios.post(`${this.host}/projects/delete`, {
           projectId: this.currentProjectId
@@ -217,6 +231,10 @@ export default {
       });
     },
     removeUser (userId) {
+      if (!this.project || !this.project.projectId) {
+        this.showError('请选择一个项目');
+        return;
+      }
       this.showDialog(null, '是否确认退出？退出后只有管理员有权限邀请！', '确认框', () => {
         axios.post(`${this.host}/projects/removeUser`, {
           projectId: this.currentProjectId,
@@ -230,7 +248,19 @@ export default {
       });
     },
     downloadProject () {
+      if (!this.project || !this.project.projectId) {
+        this.showError('请选择一个项目');
+        return;
+      }
       window.open(`${this.host}/download?projectId=${this.project.projectId}`);
+    },
+
+    settingProject () {
+      if (!this.project || !this.project.projectId) {
+        this.showError('请选择一个项目');
+        return;
+      }
+      this.projectSetting = true;
     },
 
     // 发送邀请和接受邀请
@@ -295,9 +325,9 @@ export default {
 .header {
   display: flex;
   flex-direction: row;
-  background: rgb(60, 63, 65);
-  color: rgb(187, 187, 187);
-  border-bottom: 1px solid rgb(40, 40, 40);
+  /*background: rgb(60, 63, 65);
+  color: rgb(187, 187, 187);*/
+  background: rgb(224, 224, 224);
   font-size: 14px;
   height: 20px;
 }
@@ -309,22 +339,25 @@ export default {
   width: 250px;
   display: flex;
   flex-direction: row;
-  border-right: 1px solid rgb(187, 187, 187);
+  border-right: 1px solid rgb(146, 146, 146);
 }
 .select {
-  background: rgb(60, 63, 65);
-  color: rgb(187, 187, 187);
-  border: none;
+  background: rgb(224, 224, 224);
+  /*border: none;*/
   outline: none;
   width: 130px;
+  height: 17px;
+  line-height:17px;
+  margin-top: 1px;
 }
 .icon-project {
   width: 20px;
   height: 20px;
 }
 .icon-logout {
-  width: 18px;
-  height: 18px;
+  width: 15px;
+  height: 15px;
+  margin-right: 5px;
   cursor: pointer;
 }
 .op-container {
@@ -337,7 +370,7 @@ export default {
 .op-icon {
   width: 15px;
   height: 15px;
-  margin-right: 5px;
+  margin-left: 5px;
 }
 
 .header-right {
@@ -353,13 +386,13 @@ export default {
   align-items: center;
 }
 .login-form input {
-  background: rgb(60, 63, 65);
+  background: rgb(224, 224, 224);
   border: none;
-  border-bottom: 1px solid rgb(187, 187, 187);
+  border-bottom: 1px solid rgb(146 , 146, 146);
   outline: none;
-  color: rgb(187, 187, 187);
   width: 100px;
   margin: 0 5px;
+  height: 18px;
 }
 .login-form .login-btn {
   margin: 0 10px;
@@ -370,8 +403,8 @@ export default {
   width: 15px;
   height: 15px;
   line-height: 15px;
-  background: rgb(187, 187, 187);
-  color: rgb(60, 63, 65);
+  background: rgb(146 , 146, 146);
+  color: white;
   -webkit-border-radius: 50%;
   -moz-border-radius: 50%;
   border-radius: 50%;
