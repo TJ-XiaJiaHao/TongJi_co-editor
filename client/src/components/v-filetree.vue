@@ -39,8 +39,8 @@ export default {
       if (file.children) file.showChildren = !file.showChildren;
       else this.$emit('loadFile', file.id, file.name);
     },
-    loadFile (id) {
-      this.$emit('loadFile', id);
+    loadFile (id, filename) {
+      this.$emit('loadFile', id, filename);
     }
   }
 };

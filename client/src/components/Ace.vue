@@ -66,13 +66,13 @@ export default {
     // 编辑器初始化
     this.ace = this.$children[this.$children.length - 1].editor;          // 编辑器
     this.ace.session.on('change', (delta) => {    // 监听编辑器改动事件
+      console.log(delta);
       if (this.editorLockTime !== 0) {
         this.editorLockTime--;
       } else if (!this.isEditorLoaded) {
       } else if (delta.action === 'insert') {
         this.add(delta.start.row, delta.start.column, delta.lines);
       } else if (delta.action === 'remove') {
-
         this.remove(delta.start.row, delta.start.column, delta.lines);
       }
     });
@@ -85,6 +85,7 @@ export default {
     // socket初始化
     this.socket = new WebSocket(`ws://${config.host}/`);
     this.socket.onmessage = (res) => {
+      console.log(res);
       const data = JSON.parse(res.data);
       if (data.type === 'project' && data.project) {
         if (data.op === 'update') {
@@ -97,6 +98,11 @@ export default {
             this.$Notice.info({ title: '通知', desc: data.msg });
           }
         } else if (data.op === 'delete') {
+          this.doc = {};
+          this.project = {};
+          this.currentFileName = null;
+          this.editorConfig.content = '';
+          this.lockEditor();
           this.loadUserInfo();
         }
       } else if (data.type === 'doc') {
@@ -111,7 +117,7 @@ export default {
           const user = this.coUsers.filter((item) => item.userId === data.userId)[0];
           if (!user) this.coUsers.push({userId: data.userId, userName: data.userName});
         }
-        if(data.msg) this.$Notice.info({ title: '通知', desc: data.msg });
+        if (data.msg) this.$Notice.info({ title: '通知', desc: data.msg });
       } else if (data.type === 'notification') {
         this.$Notice.info({ title: '通知', desc: data.msg });
         this.loadUserInfo();
@@ -149,7 +155,7 @@ export default {
     // 加载文件内容
     loadFile (id, filename) {
       if (this.doc && this.doc.id === id) return;                 // 去除无效操作
-      if (this.doc) this.doc._events.op = null;                   // 清空监听事件
+      if (this.doc && this.doc._events && this.doc._events.op) this.doc._events.op = null;                   // 清空监听事件
       this.doc = this.connection.get(this.project.projectId, id);
       this.doc.subscribe(this.init);    // 订阅
       this.doc.on('op', this.update);     // 文件被修改（他人或自己，都会更新
@@ -244,7 +250,7 @@ export default {
               start: this.getPoint(pStart),
               end: this.getPoint(pStart)
             };
-            this.editorLockTime+=2;
+            this.editorLockTime += 2;
             this.ace.session.replace(rangeDel, '');         // 替换指定区域的内容
             this.ace.session.replace(rangeAdd, op[0]);      // 替换指定区域的内容
           } else if (type === 'number') {             // 从非起始处进行删除或替换操作

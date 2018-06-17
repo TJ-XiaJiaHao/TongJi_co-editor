@@ -12,7 +12,7 @@ router.get('/', function(req, res) {
     if (data.code === 0) {
       fs.writeFile(data.zipName, data.content, 'binary', function () {
         res.setHeader('Content-Type', 'application/vnd.openxmlformats');
-        res.setHeader('Content-Disposition', 'attachment; filename=test.zip');
+        res.setHeader('Content-Disposition', `attachment; filename=${data.zipName}.zip`);
         res.end(fs.readFileSync(data.zipName), 'binary');
         fs.unlinkSync(data.zipName);
       });

@@ -29,7 +29,7 @@ function create(collectionName, documentId, callback) {
 
     // 如果文件不存在，则新建文件
     // else doc.create({document: {value: ''}}, (err) => {
-    else doc.create('This is a new document', 'text', (err) => {
+    else doc.create('', 'text', (err) => {
       if(err) callback && callback(ERROR.CREATE_FILE_FAIL);
       else callback && callback({
         code: ERROR.SUCCESS.code,

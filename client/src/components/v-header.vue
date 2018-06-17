@@ -179,7 +179,7 @@ export default {
 
     // 项目操作                   下载、上传
     createProject () {
-      if (!this.user || !this.user.userId) {
+      if (!this.user || !this.user.id) {
         this.showError('请先登录');
         return;
       }
